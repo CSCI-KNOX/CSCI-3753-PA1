@@ -1,4 +1,4 @@
-multiple# Programming Assignment One
+# Programming Assignment One
 
 ##### CSCI 2753: Operating Systems, String 2018
 
@@ -100,7 +100,7 @@ If you're remotely connected to the Pi and want to keep running a program but wa
 
 ### 1.2.1 Terminal Tabs
 
-One great thing about tmux is it allows you to have multiple tabs. To crate a new tab type `Ctrl+d` followed by `c`. The bottom green bar should look something like this `[pa1] 0:bash- 1:bash*`. Notice how there is an asterisk on `1:bash*`. To move back and forth between the tabs type `Ctrl+d` then `n` for next and `p` for previous.
+One great thing about tmux is it allows you to have multiple tabs. To create a new tab type `Ctrl+d` followed by `c`. The bottom green bar should look something like this `[pa1] 0:bash- 1:bash*`. Notice how there is an asterisk on `1:bash*`. To move back and forth between the tabs type `Ctrl+d` then `n` for next and `p` for previous.
 
 Tmux is a very powerful program and extremely customizable. I'll leave it up to you to explore it.
 
