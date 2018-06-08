@@ -1,4 +1,4 @@
-# Programming Assignment One
+multiple# Programming Assignment One
 
 ##### CSCI 2753: Operating Systems, String 2018
 
@@ -64,17 +64,45 @@ To see the configuration.
 $ git config --list
 ```
 
-If you have never used git, I recommend skimming thought this free [book](https://git-scm.com/book/en/v2).
+If you have never used git, we recommend skimming thought this free [book](https://git-scm.com/book/en/v2).
 
-### 1.2 Additional Tools (Optional)
+### 1.2 Additional Tools (optional, but recommended)
 
-If your going to access your pi remotely we highly recommend that you use `tmux`.
+If your going to access your Pi remotely, we highly recommend that you use `tmux`.
 
 ```text
 sudo apt install tmux
 ```
 
-Tmux is a terminal multiplexer allowing you to disconnect while processes are running. For any reason you are disconnect form your Pi the compile process will still be running once you reconnect. It also provides terminal tabs, which improves workflow.
+Tmux is a terminal multiplexer allowing you to disconnect from remote hosts while processes are still running. If, for any reason, you are disconnect form your Pi, the compile process --  if started in `tmux` --  will still be running. It also provides terminal tabs.
+
+To start using tmux, create a new session.
+
+```text
+tmux new -s pa1
+```
+You will notice on the bottom of your screen a green bar with `[pa1] 0:bash*`. Also note that `pa1` can be anything. This is just a name. You can have multiple sessions at a time with different names.
+
+Now lets detach from our session. To send a command to tmux we use `Ctrl+b`. To detach, first `Ctrl+b` followed by `d`. Now the green bar will no longer be displayed. Something to note here is that our pa1 session is still running. We can check this with:
+
+```text
+tmux ls
+pa1: 1 windows (created Thu Jun  7 22:37:36 2018) [80x23]
+```
+to reattach to `pa1` session we use:
+
+```text
+tmux a -t pa1
+```
+> Note: to exit tmux type `exit` in the terminal
+
+If you're remotely connected to the Pi and want to keep running a program but want to disconnect. You first connect to the Pi using `ssh`. Start a tmux session and run the program inside tmux. Then detach from session and disconnect for the ssh connection. The program will keep running inside tmux.
+
+### 1.2.1 Terminal Tabs
+
+One great thing about tmux is it allows you to have multiple tabs. To crate a new tab type `Ctrl+d` followed by `c`. The bottom green bar should look something like this `[pa1] 0:bash- 1:bash*`. Notice how there is an asterisk on `1:bash*`. To move back and forth between the tabs type `Ctrl+d` then `n` for next and `p` for previous.
+
+Tmux is a very powerful program and extremely customizable. I'll leave it up to you to explore it.
 
 ## 2 Download Source code for Linux
 
