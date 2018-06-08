@@ -1,11 +1,10 @@
 # Programming Assignment One
-
-##### CSCI 2753: Operating Systems, String 2018
-
-Programming Assignment Due:
-
-```5pm Monday June ???, 2018```
-```Bonus for completed assignments turned in by 5pm Friday June ???, 2018```
+## CSCI 2753: Operating Systems, Summer 2018
+Due date and time:
+```
+     5pm Monday June ???, 2018 
+     5pm Friday June ???, 2018 to receive **bonus** for early completion
+```
 
 ## Introduction: Welcome to the first programming assignment for CSCI 3753 - Design and Analysis of Operating Systems. 
 In this assignment we will install and configure tools needed to compile the Linux kernel, build a new kernel, add a new custom system call, and add a new device driver. 
@@ -14,9 +13,7 @@ This assignment write up is using a Raspberry Pi3 as the linux platform for all 
 
 ## Assignment Components:
 
-1. Install necessary tools, download the source code for Linux, and compile the kernel 
-2. Add a custom system call to the kernel and write a test program that uses the system call 
-3. Create a new Loadable Kernel Module, dynamically install it into the kernel, and write a test program to test the LKM's functionality.
+1. Install necessary tools, download the source code for Linux, and compile the kernel  2. Add a custom system call to the kernel and write a test program that uses the system call 3. Create a new Loadable Kernel Module, dynamically install it into the kernel, and write a test program to test the LKM's functionality.
 
 ## 1 Download and Configure Tools
 
