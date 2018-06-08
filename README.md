@@ -145,7 +145,8 @@ Replace `-v7` with your name. Tab to the top directory and select `<Save>`. Save
 ### 1.5 Compile the Kernel
 
 ```text
- sudo make -j4 CC="ccache gcc" modules dtbs zImage
+sudo make -j4 CC="ccache gcc" modules dtbs zImage
+sudo make modules_install
 ```
 
 ```text
@@ -169,9 +170,48 @@ This will take about two and a half hours the first time.  We are using the ccac
 
 ## 2. Creating a Custom System Call
 ### 2.1 Create source code file
+
+Now you have to write the actual system call. First you will see that the linux source code is downloaded in the kernel folder. Go to that folder linux from the terminal. Then follow these steps.
+
+```text
+cd ~
+vim linux/arch/arm/kernel/helloworld.c
+```
+
+and copy paste the following code snippet and save it
+
+```c
+#include <linux/kernel.h>
+#include <linux/linkage.h>
+asmlinkage long sys_helloworld(void)
+{
+  printk(KERN_ALERT "hello world\n");
+  return 0;
+}
+```
+
 ### 2.2 Add to kernel makefile
+
+Now we have to tell the build system about our kernel call. Open the file arch/arm/kernel/Makefile​ . Inside you will see a host of lines that begin with obj+=. After the end of the definition list, add the following line (do not place it inside any special control statements in the file)
+
+```text
+obj-y+=helloworld.o
+```
+
 ### 2.3 Add to kernel jump table
+
+Now you will add the new system call in the system call header file. Go to the location
+
+```text
+cd ~/linux/include/linux/
+```
+
+and open the file ​ `syscalls.h`​ and add the prototype of your system call at the end of the file before the endif. Check the file structure or google if you have trouble.
+
 ### 2.4 Recompile and run
+
+Now recompile the kernel using the instructions given in the previous section.
+
 ### 2.5 Create test application to use new system call
 ### 2.6 Create another system call taking parameters and returning a result value
 
@@ -185,3 +225,7 @@ This will take about two and a half hours the first time.  We are using the ccac
 ### 3.5 Create device file
 ### 3.6 Modify device driver to support open,close, read, write, seek
 ### 3.7 Write test application for testing new device driver
+
+## References:
+
+## Grading
