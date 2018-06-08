@@ -17,9 +17,9 @@ This assignment write up is using a Raspberry Pi3 as the linux platform for all 
 2. Add a custom system call to the kernel and write a test program that uses the system call
 3. Create a new Loadable Kernel Module, dynamically install it into the kernel, and write a test program to test the LKM's functionality.
 
-## 1 Download and Configure Tools
+## 1. Download and Configure Tools
 
-First we will make sure that our Pi is up to date.
+First we will make sure that our platform is up to date.
 
 ```text sudo apt update && sudo apt upgrade -y ``` It's a good idea to reboot here.
 
@@ -47,9 +47,9 @@ To see the configuration.
 
 If you have never used git, we recommend skimming thought this free [book](https://git-scm.com/book/en/v2).
 
-### 1.2 Additional Tools (optional, but recommended)
+### 1.3 Additional Tools (optional)
 
-If your going to access your Pi remotely, we highly recommend that you use `tmux`.
+If your going to access your Raspberry Pi remotely, we highly recommend that you use `tmux` to allow you to have multiple text windows available both on the platform, but also can be shared with SSH connections.
 
 ```text sudo apt install tmux ```
 
@@ -67,13 +67,13 @@ Now lets detach from our session. To send a command to tmux we use `Ctrl+b`. To 
 
 If you're remotely connected to the Pi and want to keep running a program but want to disconnect. You first connect to the Pi using `ssh`. Start a tmux session and run the program inside tmux. Then detach from session and disconnect for the ssh connection. The program will keep running inside tmux.
 
-### 1.2.1 Terminal Tabs
+### 1.3.1 Terminal Tabs
 
 One great thing about tmux is it allows you to have multiple tabs. To create a new tab type `Ctrl+d` followed by `c`. The bottom green bar should look something like this `[pa1] 0:bash- 1:bash*`. Notice how there is an asterisk on `1:bash*`. To move back and forth between the tabs type `Ctrl+d` then `n` for next and `p` for previous.
 
 Tmux is a very powerful program and extremely customizable. I'll leave it up to you to explore it.
 
-## 2 Download Source code for Linux
+### 1.4 Download Source code for Linux
 
 Now we will download kernel source code.
 
@@ -101,8 +101,33 @@ Select
 
 ```text (-v7) Local version - append to kernel release ``` Replace `-v7` with your name. Tab to the top directory and select `<Save>`. Save it to the .config file (default).
 
-Next, compile the kernel.
+### 1.5 Compile the Kernel
 
 ```text sudo make -j4 CC="ccache gcc" ```
 
-This will take about two and a half hours.
+This will take about two and a half hours the first time.  We are using the ccache utility to make subsequent compiles much faster.
+
+### 1.6 Rebooting to your newly built Kernel
+```text sudo reboot ```
+
+### 1.7 What if your new kernel does not run?
+**_describe here how to recover and boot the original kernel_**
+
+
+## 2. Creating a Custom System Call
+### 2.1 Create source code file
+### 2.2 Add to kernel makefile
+### 2.3 Add to kernel jump table
+### 2.4 Recompile and run
+### 2.5 Create test application to use new system call
+### 2.6 Create another system call taking parameters and returning a result value
+
+## 3. Creating a new Device Driver
+### 3.1 Create source code for new device driver
+### 3.2 Modify makefile
+### 3.3 Install Module
+### 3.4 Uninstall Module
+### 3.5 Create device file
+### 3.6 Modify device driver to support open,close, read, write, seek
+### 3.7 Write test application for testing new device driver
+
