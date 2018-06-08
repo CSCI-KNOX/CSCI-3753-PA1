@@ -2,7 +2,7 @@
 ## CSCI 2753: Operating Systems, Summer 2018
 Due date and time:
 ```
-     5pm Monday June ???, 2018 
+     5pm Monday June ???, 2018
      5pm Friday June ???, 2018 to receive **bonus** for early completion
 ```
 
@@ -13,7 +13,9 @@ This assignment write up is using a Raspberry Pi3 as the linux platform for all 
 
 ## Assignment Components:
 
-1. Install necessary tools, download the source code for Linux, and compile the kernel  2. Add a custom system call to the kernel and write a test program that uses the system call 3. Create a new Loadable Kernel Module, dynamically install it into the kernel, and write a test program to test the LKM's functionality.
+1. Install necessary tools, download the source code for Linux, and compile the kernel
+2. Add a custom system call to the kernel and write a test program that uses the system call
+3. Create a new Loadable Kernel Module, dynamically install it into the kernel, and write a test program to test the LKM's functionality.
 
 ## 1 Download and Configure Tools
 
