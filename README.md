@@ -1,6 +1,6 @@
 # Programming Assignment One
 ## CSCI 2753: Operating Systems, Summer 2018
-Due date and time:
+Due date and time: 
 ```
      5pm Monday June 18th, 2018
      5pm Friday June 15th, 2018 to receive **bonus** for early completion
