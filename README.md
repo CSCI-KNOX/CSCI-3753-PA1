@@ -1,6 +1,6 @@
 # Programming Assignment One
 ## CSCI 2753: Operating Systems, Summer 2018
-Due date and time: 
+Due date and time:
 ```
      5pm Monday June 18th, 2018
      5pm Friday June 15th, 2018 to receive **bonus** for early completion
@@ -145,7 +145,14 @@ Replace `-v7` with your name. Tab to the top directory and select `<Save>`. Save
 ### 1.5 Compile the Kernel
 
 ```text
- sudo make -j4 CC="ccache gcc"
+ sudo make -j4 CC="ccache gcc" modules dtbs zImage
+```
+
+```text
+sudo cp arch/arm/boot/dts/*.dtb /boot/
+sudo cp arch/arm/boot/dts/overlays/*.dtb* /boot/overlays/
+sudo cp arch/arm/boot/dts/overlays/README /boot/overlays/
+sudo cp arch/arm/boot/zImage /boot/$<name_of_kernel>.img
 ```
 
 This will take about two and a half hours the first time.  We are using the ccache utility to make subsequent compiles much faster.
