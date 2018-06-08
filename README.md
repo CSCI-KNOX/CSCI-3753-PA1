@@ -17,6 +17,7 @@ This assignment write up is using a Raspberry Pi3 as the linux platform for all 
 2. Add a custom system call to the kernel and write a test program that uses the system call
 3. Create a new Loadable Kernel Module, dynamically install it into the kernel, and write a test program to test the LKM's functionality.
 
+---
 ## 1. Download and Configure Tools
 
 First we will make sure that our platform is up to date.
@@ -113,6 +114,7 @@ This will take about two and a half hours the first time.  We are using the ccac
 ### 1.7 What if your new kernel does not run?
 **_describe here how to recover and boot the original kernel_**
 
+---
 
 ## 2. Creating a Custom System Call
 ### 2.1 Create source code file
@@ -121,6 +123,8 @@ This will take about two and a half hours the first time.  We are using the ccac
 ### 2.4 Recompile and run
 ### 2.5 Create test application to use new system call
 ### 2.6 Create another system call taking parameters and returning a result value
+
+---
 
 ## 3. Creating a new Device Driver
 ### 3.1 Create source code for new device driver
