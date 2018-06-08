@@ -22,7 +22,7 @@ This assignment write up is using a Raspberry Pi3 as the linux platform for all 
 
 First we will make sure that our platform is up to date.
 
-```text sudo apt update && sudo apt upgrade -y ``` It's a good idea to reboot here.
+```sudo apt update && sudo apt upgrade -y ``` It's a good idea to reboot here.
 
 ```text sudo reboot ```
 
