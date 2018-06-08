@@ -1,9 +1,9 @@
 # Programming Assignment One
 ## CSCI 2753: Operating Systems, Summer 2018
-Due date and time:
+Due date and time: 
 ```
-     5pm Monday June ???, 2018
-     5pm Friday June ???, 2018 to receive **bonus** for early completion
+     5pm Monday June 18th, 2018
+     5pm Friday June 15th, 2018 to receive **bonus** for early completion
 ```
 
 ## Introduction: Welcome to the first programming assignment for CSCI 3753 - Design and Analysis of Operating Systems.
@@ -24,13 +24,11 @@ First we will make sure that our platform is up to date.
 
 ```text
 sudo apt update && sudo apt upgrade -y
-
 ```
 It's a good idea to reboot here.
 
 ```text
  sudo reboot
-
 ```
 
 ### 1.1 Download Tools
