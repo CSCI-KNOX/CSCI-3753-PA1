@@ -28,7 +28,7 @@ sudo apt update && sudo apt upgrade -y
 It's a good idea to reboot here.
 
 ```text
- sudo reboot
+sudo reboot
 ```
 
 ### 1.1 Download Tools
@@ -36,27 +36,28 @@ It's a good idea to reboot here.
 Now let's install necessary programs.
 
 ```text
- sudo apt install git bc vim libncurses5-dev make gcc ccache
+sudo apt install git bc vim libncurses5-dev make gcc ccache
 ```
 
 ### 1.2 Configuring git
 
-For `git` to work properly we need to do some minimal configurations. We need to add our name, email, and editor.
+For `git` to work properly we need to do some minimal configurations. We need to add our name, email, and editor. Replace `"John Doe"` and `johndoe@example.com` with your name and your email.
 
 ```text
- $ git config --global user.name "John Doe" $ git config --global user.email johndoe@example.com
+git config --global user.name "John Doe"
+git config --global user.email johndoe@example.com
 ```
 
 Editor is optional.
 
 ```text
- $ git config --global core.editor vim
+git config --global core.editor vim
 ```
 
 To see the configuration.
 
 ```text
- $ git config --list
+git config --list
 ```
 
 If you have never used git, we recommend skimming thought this free [book](https://git-scm.com/book/en/v2).
@@ -66,7 +67,7 @@ If you have never used git, we recommend skimming thought this free [book](https
 If your going to access your Raspberry Pi remotely, we highly recommend that you use `tmux` to allow you to have multiple text windows available both on the platform, but also can be shared with SSH connections.
 
 ```text
- sudo apt install tmux
+sudo apt install tmux
 ```
 
 Tmux is a terminal multiplexer allowing you to disconnect from remote hosts while processes are still running. If, for any reason, you are disconnect form your Pi, the compile process --  if started in `tmux` --  will still be running. It also provides terminal tabs.
@@ -74,19 +75,19 @@ Tmux is a terminal multiplexer allowing you to disconnect from remote hosts whil
 To start using tmux, create a new session.
 
 ```text
- tmux new -s pa1
+tmux new -s pa1
 ```
 You will notice on the bottom of your screen a green bar with `[pa1] 0:bash*`. Also note that `pa1` can be anything. This is just a name. You can have multiple sessions at a time with different names.
 
 Now lets detach from our session. To send a command to tmux we use `Ctrl+b`. To detach, first `Ctrl+b` followed by `d`. Now the green bar will no longer be displayed. Something to note here is that our pa1 session is still running. We can check this with:
 
 ```text
- tmux ls pa1: 1 windows (created Thu Jun  7 22:37:36 2018) [80x23]
+tmux ls pa1: 1 windows (created Thu Jun  7 22:37:36 2018) [80x23]
 ```
 to reattach to `pa1` session we use:
 
 ```text
- tmux a -t pa1
+tmux a -t pa1
 ```
 > Note: to exit tmux type `exit` in the terminal
 
@@ -103,42 +104,44 @@ Tmux is a very powerful program and extremely customizable. I'll leave it up to 
 Now we will download kernel source code.
 
 ```text
- cd ~ git clone --depth 1 https://github.com/raspberrypi/linux.git
+cd ~ git clone --depth 1 https://github.com/raspberrypi/linux.git
 ```
 
 To use the same configuration as our current kernel we need to enable configs module.
 
 ```text
- sudo modprobe configs
+sudo modprobe configs
 ```
 
 Make sure to `cd` into top level of the kernel source directory.
 
 ```text
- cd ~/linux
+cd ~/linux
 ```
 
 Next we copy the current kernel config file to our source directory.
 
 ```text
- zcat /proc/config.gz > .config
+zcat /proc/config.gz > .config
 ```
 > Note: If you get an error that config.gz was not found, make sure configs module is loaded
 
 To edit .config file using a menu run:
 
 ```text
- sudo make menuconfig
+sudo make menuconfig
 ```
 
 Select
 
 ```text
- General setup --->
-```Select
+General setup --->
+```
+
+Select
 
 ```text
- (-v7) Local version - append to kernel release
+(-v7) Local version - append to kernel release
 ```
 Replace `-v7` with your name. Tab to the top directory and select `<Save>`. Save it to the .config file (default).
 
@@ -146,6 +149,11 @@ Replace `-v7` with your name. Tab to the top directory and select `<Save>`. Save
 
 ```text
 sudo make -j4 CC="ccache gcc" modules dtbs zImage
+```
+
+This will take about two and a half hours the first time.  We are using the ccache utility to make subsequent compiles much faster.
+
+```text
 sudo make modules_install
 ```
 
@@ -153,10 +161,10 @@ sudo make modules_install
 sudo cp arch/arm/boot/dts/*.dtb /boot/
 sudo cp arch/arm/boot/dts/overlays/*.dtb* /boot/overlays/
 sudo cp arch/arm/boot/dts/overlays/README /boot/overlays/
-sudo cp arch/arm/boot/zImage /boot/$<name_of_kernel>.img
+sudo cp arch/arm/boot/zImage /boot/$<kernel_name>.img
 ```
 
-This will take about two and a half hours the first time.  We are using the ccache utility to make subsequent compiles much faster.
+Replace `<kernel_name>` with any name you like. This name will be use in the `config.txt` file to boot this specific kernel. Make sure **NOT** to name it `kenrel7` since this is the default kernel name already installed on your system. If you do so and your platform doesn't boot, you will have to start the assignment from the beginning!
 
 ### 1.6 Rebooting to your newly built Kernel
 ```text
@@ -165,6 +173,8 @@ This will take about two and a half hours the first time.  We are using the ccac
 
 ### 1.7 What if your new kernel does not run?
 **_describe here how to recover and boot the original kernel_**
+
+
 
 ---
 
@@ -192,13 +202,15 @@ asmlinkage long sys_helloworld(void)
 
 ### 2.2 Add to kernel makefile
 
-Now we have to tell the build system about our kernel call. Open the file arch/arm/kernel/Makefile​ . Inside you will see a host of lines that begin with obj+=. After the end of the definition list, add the following line (do not place it inside any special control statements in the file)
+Now we have to tell the build system about our kernel call. Open the file `arch/arm/kernel/Makefile​`. Inside you will see a host of lines that begin with `obj+=`. After the end of the definition list, add the following line (do not place it inside any special control statements in the file)
 
 ```text
 obj-y+=helloworld.o
 ```
 
 ### 2.3 Add to kernel jump table
+
+Now you have to add that system call in the system table of the kernel. Go to the directory `arch/arm/syscalls`​ and open the file `syscall_32.tbl`. Look at the file and use the existing entries to add the new system call. Make sure it is added in the 32 bit system call section and remember the system call number as you will be using that later. Ask google if you find any trouble.
 
 Now you will add the new system call in the system call header file. Go to the location
 
