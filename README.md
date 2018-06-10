@@ -174,9 +174,16 @@ Replace `<kernel_name>` with any name you like. This name will be use in the `co
 ```
 
 ### 1.7 What if your new kernel does not run?
-**_describe here how to recover and boot the original kernel_**
 
+To recover from a bad kernel you need a second system to access the files on the SD card.
 
+#### On Windows
+
+#### On Mac
+
+#### On Linux
+
+Insert the card into a SD card reader. This will mount the two partitions on the SD card. Open file `/boot/config.txt` and comment out `kernel=<kenrel_name>.img`. Save the file. Now `unmount` the SD card and place it back into Pi3. Plug the Pi back in.
 
 ---
 
@@ -190,7 +197,7 @@ cd ~
 vim linux/arch/arm/kernel/helloworld.c
 ```
 
-and copy paste the following code snippet and save it
+and copy paste the following code snippet and save it. We have also provided this file so you can copy it from git.
 
 ```c
 #include <linux/kernel.h>
@@ -202,6 +209,15 @@ asmlinkage long sys_helloworld(void)
 }
 ```
 
+Explanation:
+
+1. Now kernel.h header file makes us able to use the many constants and functions that are used in kernel hacking, including the `printk` function.
+2. `Linkage.h` defines macros that are used to keep the stack safe and ordered.
+3. Asmlinkage is a `#define` for some `gcc` magic that tells the compiler that the function should not expect to find any of its arguments in registers (a common optimization), but only on the CPU's stack. It is defined in the linkage.h header files
+4. We have named the function sys_helloworld because all system calls’ name start with `sys_prefix`.
+5. The function printk is used to print out kernel messages, and here we are using it with the KERN EMERG macro to print out "Hello World!" as if it were a kernel emergency. Note that depending on your system settings, printk message may not print to your terminal. Most of the time they only get printed to the kernel syslog (`/var/log/syslog`) system. If the severity level is high enough, they will also print to the terminal. Look up printk online or in the kernel docs for more information.
+
+
 ### 2.2 Add to kernel makefile
 
 Now we have to tell the build system about our kernel call. Open the file `arch/arm/kernel/Makefile​`. Inside you will see a host of lines that begin with `obj+=`. After the end of the definition list, add the following line (do not place it inside any special control statements in the file)
@@ -212,7 +228,7 @@ obj-y+=helloworld.o
 
 ### 2.3 Add to kernel jump table
 
-Now you have to add that system call in the system table of the kernel. Go to the directory `arch/arm/syscalls`​ and open the file `syscall_32.tbl`. Look at the file and use the existing entries to add the new system call. Make sure it is added in the 32 bit system call section and remember the system call number as you will be using that later. Ask google if you find any trouble.
+Now you have to add that system call in the system table of the kernel. Go to the directory `arch/arm/tools/`​ and open the file `syscall.tbl`. Look at the file and use the existing entries to add the new system call. Ask google if you find any trouble.
 
 Now you will add the new system call in the system call header file. Go to the location
 
