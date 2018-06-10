@@ -41,11 +41,11 @@ sudo apt install git bc vim libncurses5-dev make gcc ccache
 
 ### 1.2 Configuring git
 
-For `git` to work properly we need to do some minimal configurations. We need to add our name, email, and editor. Replace `"John Doe"` and `johndoe@example.com` with your name and your email.
+For `git` to work properly we need to do some minimal configurations. We need to add our name, email, and editor. Replace `"Your Name"` and `youremail@example.com` with your name and your email.
 
 ```text
-git config --global user.name "John Doe"
-git config --global user.email johndoe@example.com
+git config --global user.name "Your Name"
+git config --global user.email youremail@example.com
 ```
 
 Editor is optional.
@@ -82,7 +82,8 @@ You will notice on the bottom of your screen a green bar with `[pa1] 0:bash*`. A
 Now lets detach from our session. To send a command to tmux we use `Ctrl+b`. To detach, first `Ctrl+b` followed by `d`. Now the green bar will no longer be displayed. Something to note here is that our pa1 session is still running. We can check this with:
 
 ```text
-tmux ls pa1: 1 windows (created Thu Jun  7 22:37:36 2018) [80x23]
+tmux ls
+pa1: 1 windows (created Thu Jun  7 22:37:36 2018) [80x23]
 ```
 to reattach to `pa1` session we use:
 
@@ -104,7 +105,8 @@ Tmux is a very powerful program and extremely customizable. I'll leave it up to 
 Now we will download kernel source code.
 
 ```text
-cd ~ git clone --depth 1 https://github.com/raspberrypi/linux.git
+cd ~
+git clone --depth 1 https://github.com/raspberrypi/linux.git
 ```
 
 To use the same configuration as our current kernel we need to enable configs module.
@@ -119,7 +121,7 @@ Make sure to `cd` into top level of the kernel source directory.
 cd ~/linux
 ```
 
-Next we copy the current kernel config file to our source directory.
+Next we copy the current running kernel config file to our kernel source directory.
 
 ```text
 zcat /proc/config.gz > .config
@@ -156,7 +158,7 @@ This will take about two and a half hours the first time.  We are using the ccac
 ```text
 sudo make modules_install
 ```
-
+Make sure to replace `<kernel_name>` with any name except the default's kernel name (i.e. `kernel7`).
 ```text
 sudo cp arch/arm/boot/dts/*.dtb /boot/
 sudo cp arch/arm/boot/dts/overlays/*.dtb* /boot/overlays/
@@ -222,10 +224,19 @@ and open the file ​ `syscalls.h`​ and add the prototype of your system call 
 
 ### 2.4 Recompile and run
 
-Now recompile the kernel using the instructions given in the previous section.
+Now recompile the kernel using the instructions given in the previous section. You only have to move the new kernel to `/boot/`.
 
 ### 2.5 Create test application to use new system call
+
+Now that you have recompiled the kernel and rebooted into the installed kernel, you will be able to use the system call. Write a test C program (check google or type man syscall) to see how to call a system call and what header files to include and what are the arguments. The first argument a system call takes is the system call number we talked about before. If everything succeeds a system call returns 0 otherwise it returns -1. Check `sudo tail /var/log/syslog` to or type `dmesg` to check the `printk` outputs.
+
 ### 2.6 Create another system call taking parameters and returning a result value
+
+If everything until now has been perfect, now you have to write a new system call. This system call will be given two numbers and an address of where to store the results.
+
+Name the new system call ​ `cs3753_add` or `simple_add` ​ and pass the three arguments to the routine, number 1, number2, and result pointer. You will need to write a test program that calls the new system call and passes the correct type of argument.
+
+In your system call implementation, you must use ​`printk` to log the numbers to be added, add those two numbers, store the result location, use `printk` to log the result and then print the result again in the test program that you will be running in the userspace. Do all the changes necessary to test this new system call.
 
 ---
 
