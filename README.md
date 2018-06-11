@@ -2,8 +2,11 @@
 ## CSCI 2753: Operating Systems, Summer 2018
 Due date and time:
 ```
-     5pm Monday June 18th, 2018
+     5pm Monday June 18th, 2018 - Completed addition of System Call (section 1 and 2)
      5pm Friday June 15th, 2018 to receive **bonus** for early completion
+
+     10:30am Friday June 22th, 2018 - Completed addition of Loadable Kernel Module (section 3)
+     10:30am-2pm Friday June 22th, 2018 - Interviews for Programming Assignment One
 ```
 
 ## Introduction: Welcome to the first programming assignment for CSCI 3753 - Design and Analysis of Operating Systems.
@@ -13,9 +16,11 @@ This assignment write up is using a Raspberry Pi3 as the linux platform for all 
 
 ## Assignment Components:
 
-1. Install necessary tools, download the source code for Linux, and compile the kernel
-2. Add a custom system call to the kernel and write a test program that uses the system call
-3. Create a new Loadable Kernel Module, dynamically install it into the kernel, and write a test program to test the LKM's functionality.
+ 1. **Install necessary tools, download the source code for Linux, and compile the kernel**
+
+ 2. **Add a custom system call to the kernel and write a test program that uses the system call**
+
+ 3. **Create a new Loadable Kernel Module, dynamically install it into the kernel, and write a test program to test the LKM's functionality.**
 
 ---
 ## 1. Download and Configure Tools
@@ -254,17 +259,114 @@ Name the new system call ​ `cs3753_add` or `simple_add` ​ and pass the three
 
 In your system call implementation, you must use ​`printk` to log the numbers to be added, add those two numbers, store the result location, use `printk` to log the result and then print the result again in the test program that you will be running in the userspace. Do all the changes necessary to test this new system call.
 
+### 2.7 **You MUST Submit Your Work for sections 1 and 2**
+After you have completed sections 1 and 2, please submit your code for the new system call you have created.  Create a zip file (use filename: `<your last name>\_PA1_A.zio`) with all the files you have modified to create your new system call.  Submit that zip file as your submission on Moodle for PA1.
+
 ---
 
 ## 3. Creating a new Device Driver
+If you want to add code to a Linux kernel, the usual method would be to add some source files to the kernel source tree and recompile the kernel. This is what you did in the first part of this assignment.  After each change, the kernel must be recompiled, copied into the boot directory, and the computer must be rebooted.  This is what you did in the first assignment when adding a system call. After you reboot, the changes that you made are installed in the kernel.  If more changes are required, repeat the whole process again.
+
+But you can also add code to the Linux kernel while it is running. A chunk of code that you add in this way is called a loadable kernel module (LKM). These modules can perform any function for the OS, but they have there typical uses:
+1. device drivers
+2. filesystem drivers
+3. system calls
+
+The kernel isolates certain functions, including the modules, especially well and therefore they don't have to be intricately wired into the rest of the kernel.  The part of the kernel that is bound into the image that you boot (i.e. all of the kernel except the LKMs) is called the “base kernel.” LKMs communicate with the base kernel.
+
+ There is a tendency to think of LKMs like user space programs.  Modules do share a lot of user space program properties, but LKMs are definitely not user space programs. LKMs (when loaded) are very much part of the kernel.  As such, they have free run of the system and can easily crash it.
+
+LKMs have several advantages:
+1. You don't have to rebuild your kernel
+2. LKMs help you diagnose system problems. A bug in a device driver which is bound into the kernel can stop your system from booting at all;
+3. LKMs can save you memory, because you have to have them loaded only when you're actually using them
+4. LKMs are much faster to maintain and debug.
+
+### Building Loadable Kernel Modules (LKM)
+LKMs are object files used to extend a running kernel’s functionality. This is basically a piece of binary code that can be inserted and installed in the kernel on the fly without the need to reboot. This comes very handy when you are trying to work with some new device and will be repeatedly be writing and testing your code.  It is very convenient to write system code, install it, test it, and then uninstall it, without ever needing to reboot the system.  
+
 ### 3.1 Create source code for new device driver
-### 3.2 Modify makefile
+The kernel uses jump tables to call the correct device drivers and functions of those drivers.  Each LKM must define a standard jump table to support the kernels dynamic use of the module.  The easiest way to understand the functionality that must be implemented, is to create a simple module. We will create a new module `helloworld` that will log the functions being called.
+In the project directory you should find the `hellomodule.c` and `Makefile` files. Open the `hellomodule.c` file in your editor.  
+
+This simple source files has all the code needed to install and uninstall an LKM in the kernel.  There are two macros listed at the bottom of the source file that setup the jump table for this LKM.  Whenever the module is installed, the kernel will call the routine specified in the `module_init` macro, and the routine specified in the `module_exit` will be called when the module is uninstalled.
+
+### 3.2 Create a Makefile
+```
+STILL NEED UPDATE TO RPI
+```
+Now you have to compile our module.  There are a couple of ways to add our module to the modules build for the OS.  One is to modify the makefile used by the kernel build.  The other is to write our own local makefile and attach it to the build when you want to make the modules.  Create your own make file,  create named `Makefile` and type the following single line in the file:
+```
+        obj-m:=hellomodule.o
+```
+Here `m` in `obj-m` means module and you are telling the compiler to create a module object named hellomodule.o as the result.  To build the module you will build modules for the kernel, but also include your local directory.  Enter the following command to compile the modules, `<source>` is where you put your kernel source, and `$PWD` adds your local directory with your module source.
+
+```
+       make –C <source>/modules/$(uname -r)/build M=$PWD modules
+```
+You will see there is now a file named `hellomodule.ko`. This is the kernel module (.ko) object you will be
+inserting in the basic kernel image.
+
 ### 3.3 Install Module
+To insert the module, type the following command:
+```
+       sudo insmod hellomodule.ko
+```
+The kernel has tried to insert your module.  If it is successful, you will see the log message that has been inserted into `/val/logs/system.log`.  If you type `lsmod` you will see your module is now inserted in the kernel.   
+
 ### 3.4 Uninstall Module
+To remove the kernel use the following command:
+```
+        sudo rmmod hellomodule
+```
+To verify that the module was uninstalled, check the system log and you should see our module exit message.
+You can also use the `lsmod` command to verify the module is no longer in the system.
+
 ### 3.5 Create device file
-### 3.6 Modify device driver to support open,close, read, write, seek
+The device drivers can be dynamically installed into the kernel.  How does the kernel know which device driver to use with which device?  Each device will have corresponding device file that is located in the `/dev` directory.  If you list the file in that directory you will see all the devices currently known by the kernel.  These are not regular files.  They are virtual files that only supply data from or give data to the device.  
+
+To add a new device you need to create a new entry in the `/dev` directory.  Using the `mknod` command, you can create a new entry.
+```
+        sudo mknod -m <permission> <location> <type of driver> <major number> <minor number>
+```
+For our example we will create a device called `simple_character_device` with permissions (using standard file permissions [r,w,e]), is a character device (`c`) with major number of `240`. The major number should be unique and you can look at current devices already installed, but usually user modules start at 240.
+```
+        sudo mknod –m 777 /dev/simple_character_device c 240 0
+```
+
+### 3.6 Modify device driver to support open, close, read, write, seek
+Using your `hellomodule.c` as template, create a new device driver that will be modified to support the following functions:  open, read, write, seek, close.   You will need to create a buffer to store the data for this device.  It will exist as long as the module is installed.  Once it is uninstalled, all data will be lost.
+
+
+###                   NEED TO EXPLAIN INTERNAL JUMP TABLE AND FILE STRUCT
+
 ### 3.7 Write test application for testing new device driver
+Using the basic interactive testing code we have provided, test your code for `open/close`.
+Then test your `write` code.  Then your `read` code.  Now you have a working device that can read and write.  But you also need to be able to seek to a location and perform functions from that location within the data.  You must implement `seek` and also add code to the testing application to call the seek system call.
+
+
+### 3.8 Utilities for Loadable Kernel Modules
+* _insmod_:   Insert an LKM into the kernel.
+* _rmmod_:    Remove an LKM from the kernel.
+* _depmod_:   Determine interdependencies between LKMs.
+* _kerneld_:  Kerneld daemon program
+* _ksyms_:    Display symbols that are exported by the kernel for use by new LKMs.
+* _lsmod_:    List currently loaded LKMs.
+* _modinfo_:  Display contents of .modinfo section in an LKM object file.
+* _modprobe_: Insert/remove an LKM or set of LKMs intelligently (e.g., if module A must be loaded before loading module B, modprobe will automatically load A when module B is requested to be loaded)
+
+## 3.9 **You MUST Submit Your Work for section 3**
+After you have completed section 3, please submit your code for the new device driver you have created.  Create a zip file (use filename: `<your last name>\_PA1.zio`) with all the files you have modified to create your new device driver.  Submit that zip file as your submission on Moodle for PA1.
+
+---
 
 ## References:
+1. You can use the Linux manual pages to check the functions and their functionalities.
+2. http://www.fsl.cs.sunysb.edu/kernel-api/re941.html
+3. http://lxr.free-electrons.com/ident?i=unregister_chrdev
+4. http://www.fsl.cs.sunysb.edu/kernel-api/re256.html
+5. http://www.fsl.cs.sunysb.edu/kernel-api/re257.html
 
 ## Grading
+* 20% working code
+* 80% interview
