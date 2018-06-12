@@ -101,7 +101,7 @@ If you're remotely connected to the Pi and want to keep running a program but wa
 
 ### 1.3.1 Terminal Tabs
 
-One great thing about tmux is it allows you to have multiple tabs. To create a new tab type `Ctrl+d` followed by `c`. The bottom green bar should look something like this `[pa1] 0:bash- 1:bash*`. Notice how there is an asterisk on `1:bash*`. To move back and forth between the tabs type `Ctrl+d` then `n` for next and `p` for previous.
+One great thing about tmux is it allows you to have multiple tabs. To create a new tab type `Ctrl+b` followed by `c`. The bottom green bar should look something like this `[pa1] 0:bash- 1:bash*`. Notice how there is an asterisk on `1:bash*`. To move back and forth between the tabs type `Ctrl+b` then `n` for next and `p` for previous.
 
 Tmux is a very powerful program and extremely customizable. I'll leave it up to you to explore it.
 
@@ -126,7 +126,7 @@ Make sure to `cd` into top level of the kernel source directory.
 cd ~/linux
 ```
 
-Next we copy the current running kernel config file to our kernel source directory.
+Next we copy the current running kernel config file to our kernel source directory.  We uncompress the virtual file containing the current configuration using `zcat` and place the file into `.config` in the `~/linux` directory.  This configuration file specifies the options for building a kernel. We want to build one exactly like the one currently running, except we will add our own system call.
 
 ```text
 zcat /proc/config.gz > .config
@@ -134,23 +134,18 @@ zcat /proc/config.gz > .config
 > Note: If you get an error that config.gz was not found, make sure configs module is loaded
 
 To edit .config file using a menu run:
-
 ```text
 sudo make menuconfig
 ```
-
-Select
-
+Once the character based menuing is displayed, scroll down to select:
 ```text
 General setup --->
 ```
-
-Select
-
+In the general setup menu, we want to select the name of our kernel version.  It is currently set to `-v7`, which is appended to the kernel file when we build it.  Scroll down to the local version and select it.
 ```text
 (-v7) Local version - append to kernel release
 ```
-Replace `-v7` with your name. Tab to the top directory and select `<Save>`. Save it to the .config file (default).
+Replace `-v7` with your name. Tab to the top directory and select `<Save>` and save it to the .config file (default).  Use left arrow to select the `Exit` from the general setup menu and left arraw again to select `Exit` from the `menuconfig` application.
 
 ### 1.5 Compile the Kernel
 
@@ -168,50 +163,56 @@ Make sure to replace `<kernel_name>` with any name except the default's kernel n
 sudo cp arch/arm/boot/dts/*.dtb /boot/
 sudo cp arch/arm/boot/dts/overlays/*.dtb* /boot/overlays/
 sudo cp arch/arm/boot/dts/overlays/README /boot/overlays/
-sudo cp arch/arm/boot/zImage /boot/$<kernel_name>.img
+sudo cp arch/arm/boot/zImage /boot/<kernel_name>.img
 ```
 
-Replace `<kernel_name>` with any name you like. This name will be use in the `config.txt` file to boot this specific kernel. Make sure **NOT** to name it `kenrel7` since this is the default kernel name already installed on your system. If you do so and your platform doesn't boot, you will have to start the assignment from the beginning!
+Replace `<kernel_name>` with any name you like.  Make sure **NOT** to name it `kenrel7` since this is the default kernel name already installed on your system. If you do so and your platform doesn't boot, you will have to start the assignment from the beginning!  (See 1.7)
+
+When the system is booting, it gets the name of the kernel from the `config.txt` file that is located in the `boot` partition.  To specify that you want to load your new kernel, you must edit the `config.txt` file and add a line:
+```
+kernel=<kernel_name>.img
+```
+where <kernel_name> is the name you used in the `cp` command above to copy the kernel into the boot partition.
 
 ### 1.6 Rebooting to your newly built Kernel
 ```text
  sudo reboot
 ```
+You are now booting and running your newly built kernel.
 
 ### 1.7 What if your new kernel does not run?
 
-To recover from a bad kernel you need a second system to access the files on the SD card.
-
-#### On Windows
-
-#### On Mac
-
-#### On Linux
-
-Insert the card into a SD card reader. This will mount the two partitions on the SD card. Open file `/boot/config.txt` and comment out `kernel=<kenrel_name>.img`. Save the file. Now `unmount` the SD card and place it back into Pi3. Plug the Pi back in.
+To recover from a bad kernel you need a second system to access the files on the SD card.  Turn OFF the power to your platform and remove the micro SD card.
+You will need to mount this device in another computer via an SD card reader or or USB converter. Once you have mounted the device, you can look in its boot partition.
+```
+ls <device>/boot
+```
+You can edit the `<device>/boot/.config` file and remove (or comment out) the `kernel=<kernel_name>.img` line, which will then default back to the original kernel.  Save the file back to the SD card, unmount the device, and place it back into platform. Turn the power back ON and your platform will boot the previously working kernel.
 
 ---
 
 ## 2. Creating a Custom System Call
 ### 2.1 Create source code file
 
-Now you have to write the actual system call. First you will see that the linux source code is downloaded in the kernel folder. Go to that folder linux from the terminal. Then follow these steps.
+Now you have to write the actual system call. You will be adding code into the kernel directories and making that source part of the kernel build.  
 
 ```text
-cd ~
-vim linux/arch/arm/kernel/helloworld.c
+cd ~/linux/arch/arm/kernel
+ls
+vim helloworld.c
 ```
+You will be saving a new file in the kernel directory when you save the file.
 
 and copy paste the following code snippet and save it. We have also provided this file so you can copy it from git.
 
 ```c
-#include <linux/kernel.h>
-#include <linux/linkage.h>
-asmlinkage long sys_helloworld(void)
-{
-  printk(KERN_ALERT "hello world\n");
-  return 0;
-}
+1. #include <linux/kernel.h>
+2. #include <linux/linkage.h>
+3. asmlinkage long sys_helloworld(void)
+4. {
+5.   printk(KERN_ALERT "hello world\n");
+6.   return 0;
+7. }
 ```
 
 Explanation:
@@ -225,27 +226,30 @@ Explanation:
 
 ### 2.2 Add to kernel makefile
 
-Now we have to tell the build system about our kernel call. Open the file `arch/arm/kernel/Makefile​`. Inside you will see a host of lines that begin with `obj+=`. After the end of the definition list, add the following line (do not place it inside any special control statements in the file)
+Now we have to tell the build system about our kernel call. Open the file `linux/arch/arm/kernel/Makefile​`. Inside you will see a host of lines that begin with `obj+=`. After the end of the lines adding objects to the list, add the following line (but do not place it inside any special control statements in the file)
 
 ```text
 obj-y+=helloworld.o
 ```
+This line adds your new system call code to the list of files to be built with the kernel.
 
 ### 2.3 Add to kernel jump table
 
-Now you have to add that system call in the system table of the kernel. Go to the directory `arch/arm/tools/`​ and open the file `syscall.tbl`. Look at the file and use the existing entries to add the new system call. Ask google if you find any trouble.
-
-Now you will add the new system call in the system call header file. Go to the location
+Now you have to add that system call in the system table of the kernel. Go to the directory `linux/arch/arm/tools/`​ and open the file `syscall.tbl`. Look at the file and use the existing entries to add the new system call. Ask google if you find any trouble.  You will add your new system call to the end of the system call header file.
+```text
+vim ~/linux/arch/arm/tools/syscall.tbl
+```
+You must also add your call to the list of system calls in the `syscalls.h` include file.
 
 ```text
-cd ~/linux/include/linux/
+vim ~/linux/include/linux/syscalls.h
 ```
 
-and open the file ​ `syscalls.h`​ and add the prototype of your system call at the end of the file before the endif. Check the file structure or google if you have trouble.
+Add the prototype of your system call at the end of the file before the endif. Check the file structure or google if you have trouble.
 
 ### 2.4 Recompile and run
 
-Now recompile the kernel using the instructions given in the previous section. You only have to move the new kernel to `/boot/`.
+Now recompile the kernel using the instructions given in the previous section (see section 1.5). You only have to move the new kernel to `/boot` directory.
 
 ### 2.5 Create test application to use new system call
 
