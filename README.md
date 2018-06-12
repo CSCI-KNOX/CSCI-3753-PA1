@@ -168,21 +168,24 @@ sudo cp arch/arm/boot/zImage /boot/<kernel_name>.img
 
 Replace `<kernel_name>` with any name you like.  Make sure **NOT** to name it `kenrel7` since this is the default kernel name already installed on your system. If you do so and your platform doesn't boot, you will have to start the assignment from the beginning!  (See 1.7)
 
+### 1.6 Telling the boot process to use your kernel
 When the system is booting, it gets the name of the kernel from the `config.txt` file that is located in the `boot` partition.  To specify that you want to load your new kernel, you must edit the `config.txt` file and add a line:
 ```
 kernel=<kernel_name>.img
 ```
 where <kernel_name> is the name you used in the `cp` command above to copy the kernel into the boot partition.
 
-### 1.6 Rebooting to your newly built Kernel
+### 1.7 Rebooting to your newly built Kernel
 ```text
  sudo reboot
 ```
 You are now booting and running your newly built kernel.
 
-### 1.7 What if your new kernel does not run?
+### 1.8 What if your new kernel does not run?
 
-To recover from a bad kernel you need a second system to access the files on the SD card.  Turn OFF the power to your platform and remove the micro SD card.
+If your kernel boots, but does not behave correctly, you can edit the `<device>/boot/.config` file and remove (or comment out) the `kernel=<kernel_name>.img` line, which will then default back to the original kernel.  Save the file and reboot.  You should be back to where you were before step 1.6 was performed.
+
+To recover from a bad kernel (one that will not boot) you need a second system to access the files on the SD card.  Turn OFF the power to your platform and remove the micro SD card.
 You will need to mount this device in another computer via an SD card reader or or USB converter. Once you have mounted the device, you can look in its boot partition.
 ```
 ls <device>/boot
