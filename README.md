@@ -245,7 +245,7 @@ You must also add your call to the list of system calls in the `syscalls.h` incl
 vim ~/linux/include/linux/syscalls.h
 ```
 
-and open the file ​ `syscalls.h`​ and add the prototype of your system call at the end of the file before the endif. Check the file structure or google if you have trouble.
+Add the prototype of your system call at the end of the file before the endif. Check the file structure or google if you have trouble.
 
 ### 2.4 Recompile and run
 
