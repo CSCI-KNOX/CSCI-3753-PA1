@@ -257,19 +257,18 @@ Now that you have recompiled the kernel and rebooted into the installed kernel, 
 
 ### 2.6 Create another system call taking parameters and returning a result value
 
-If everything until now has been perfect, now you have to write a new system call. This system call will be given two numbers and an address of where to store the results.
+If everything until now has been perfect, now you have to write a new system call. Name the new system call `cs3753_add`, which has three parameters and returns 0 if no error was detected.
+​The call takes the first two integer parameters and adds them together.  The third parameter is an address (in user space) of an integer in which the results will be stored.   You will need to write a test program that calls the new system call and passes the correct type of arguments.  You should test all types of possible errors that could occur in passing values and parameters to the system call.
 
-Name the new system call ​ `cs3753_add` or `simple_add` ​ and pass the three arguments to the routine, number 1, number2, and result pointer. You will need to write a test program that calls the new system call and passes the correct type of argument.
-
-In your system call implementation, you must use ​`printk` to log the numbers to be added, add those two numbers, store the result location, use `printk` to log the result and then print the result again in the test program that you will be running in the userspace. Do all the changes necessary to test this new system call.
+In your system call implementation, you *must* use ​`printk` to log the numbers to be added, add those two numbers, store the result location.  Again, use `printk` to log the result being calculated in the system call.  Finally, `printf` in the test program (running in userspace) to show the returned value.
 
 ### 2.7 **You MUST Submit Your Work for sections 1 and 2**
-After you have completed sections 1 and 2, please submit your code for the new system call you have created.  Create a zip file (use filename: `<your last name>\_PA1_A.zio`) with all the files you have modified to create your new system call.  Submit that zip file as your submission on Moodle for PA1.
+After you have completed sections 1 and 2, please submit your code for the new system call you have created along with your test program.  Create a zip file (use filename: `<your last name>\_PA1_A.zio`) with all the files you have modified to create your new system call.  Submit that zip file as your submission on Moodle for PA1.
 
 ---
 
 ## 3. Creating a new Device Driver
-If you want to add code to a Linux kernel, the usual method would be to add some source files to the kernel source tree and recompile the kernel. This is what you did in the first part of this assignment.  After each change, the kernel must be recompiled, copied into the boot directory, and the computer must be rebooted.  This is what you did in the first assignment when adding a system call. After you reboot, the changes that you made are installed in the kernel.  If more changes are required, repeat the whole process again.
+If you want to add code to a Linux kernel, the usual method is to add some source files to the kernel source tree and recompile the kernel. This is what you did in the first part of this assignment.  After each change, the kernel must be recompiled, copied into the boot directory, and the computer must be rebooted.  Again, you did this repeatedly in the first part of this assignment when you added a system call. After you copied the kernel to the boot partition and rebooted, the changes that you made were installed in the kernel.  If more changes are required, you needed to repeat the whole process again.
 
 But you can also add code to the Linux kernel while it is running. A chunk of code that you add in this way is called a loadable kernel module (LKM). These modules can perform any function for the OS, but they have there typical uses:
 1. device drivers
@@ -287,19 +286,18 @@ LKMs have several advantages:
 4. LKMs are much faster to maintain and debug.
 
 ### Building Loadable Kernel Modules (LKM)
-LKMs are object files used to extend a running kernel’s functionality. This is basically a piece of binary code that can be inserted and installed in the kernel on the fly without the need to reboot. This comes very handy when you are trying to work with some new device and will be repeatedly be writing and testing your code.  It is very convenient to write system code, install it, test it, and then uninstall it, without ever needing to reboot the system.  
+LKMs are object files used to extend a running kernel’s functionality. This is basically a piece of binary code that can be inserted and installed in the kernel on the fly without the need to reboot. This is very handy when you are trying to work with some new device and will be repeatedly be writing and testing your code.  It is very convenient to write system code, install it, test it, and then uninstall it, without ever needing to reboot the system.  
 
 ### 3.1 Create source code for new device driver
 The kernel uses jump tables to call the correct device drivers and functions of those drivers.  Each LKM must define a standard jump table to support the kernels dynamic use of the module.  The easiest way to understand the functionality that must be implemented, is to create a simple module. We will create a new module `helloworld` that will log the functions being called.
 In the project directory you should find the `hellomodule.c` and `Makefile` files. Open the `hellomodule.c` file in your editor.  
-
-This simple source files has all the code needed to install and uninstall an LKM in the kernel.  There are two macros listed at the bottom of the source file that setup the jump table for this LKM.  Whenever the module is installed, the kernel will call the routine specified in the `module_init` macro, and the routine specified in the `module_exit` will be called when the module is uninstalled.
+This simple source file has all the code needed to install and uninstall an LKM in the kernel.  There are two macros listed at the bottom of the source file that setup the jump table for this LKM.  Whenever the module is installed, the kernel will call the routine specified in the `module_init` macro, and the routine specified in the `module_exit` will be called when the module is uninstalled.
 
 ### 3.2 Create a Makefile
 ```
-STILL NEED UPDATE TO RPI
+STILL NEED UPDATE FOR DIFFERENCES IN RPI BUILDS
 ```
-Now you have to compile our module.  There are a couple of ways to add our module to the modules build for the OS.  One is to modify the makefile used by the kernel build.  The other is to write our own local makefile and attach it to the build when you want to make the modules.  Create your own make file,  create named `Makefile` and type the following single line in the file:
+Now you have to compile your module.  There are a couple of ways to add our module to the list of modules to be built for a kernel.  One is to modify the makefile used by the kernel build.  The other is to write our own local makefile and attach it to the build when you want to make the modules.  Create your own make file,  create named `Makefile` and type the following single line in the file:
 ```
         obj-m:=hellomodule.o
 ```
