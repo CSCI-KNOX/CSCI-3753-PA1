@@ -1,5 +1,5 @@
 # Programming Assignment One
-## CSCI 2753: Operating Systems, Summer 2018
+## CSCI 3753: Operating Systems, Summer 2018
 Due date and time:
 ```
      5pm Monday June 18th, 2018 - Completed addition of System Call (section 1 and 2)
