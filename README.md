@@ -297,32 +297,44 @@ In the project directory you should find the `hellomodule.c` and `Makefile` file
 This simple source file has all the code needed to install and uninstall an LKM in the kernel.  There are two macros listed at the bottom of the source file that setup the jump table for this LKM.  Whenever the module is installed, the kernel will call the routine specified in the `module_init` macro, and the routine specified in the `module_exit` will be called when the module is uninstalled.
 
 ### 3.2 Create a Makefile
+
+Now you have to compile your module.  There are a couple of ways to add our module to the list of modules to be built for a kernel.  One is to modify the makefile used by the kernel build.  The other is to write our own local makefile and attach it to the build when you want to make the modules.  Create your own make file,  create named `Makefile` and type the following lines in the file:
+
+```Makefile
+obj-m:= hellomodule.o
+all:
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+
+clean:
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 ```
-STILL NEED UPDATE FOR DIFFERENCES IN RPI BUILDS
-```
-Now you have to compile your module.  There are a couple of ways to add our module to the list of modules to be built for a kernel.  One is to modify the makefile used by the kernel build.  The other is to write our own local makefile and attach it to the build when you want to make the modules.  Create your own make file,  create named `Makefile` and type the following single line in the file:
-```
-        obj-m:=hellomodule.o
-```
-Here `m` in `obj-m` means module and you are telling the compiler to create a module object named hellomodule.o as the result.  To build the module you will build modules for the kernel, but also include your local directory.  Enter the following command to compile the modules, `$PWD` adds your local directory with your module source.
+
+Here `m` in `obj-m` means module and you are telling the compiler to create a module object named hellomodule.o as the result.  To build the module you will build modules for the kernel run:
 
 ```
-       make –C lib/modules/$(uname -r)/build M=$PWD modules
+make
 ```
-You will see there is now a file named `hellomodule.ko`. This is the kernel module (.ko) object you will be inserting in the basic kernel image.
+
+
+You will see there is now a file named `hellomodule.ko`. This is the kernel module (.ko) object you will be
+inserting in the basic kernel image.
 
 ### 3.3 Install Module
 To insert the module, type the following command:
+
 ```
-       sudo insmod hellomodule.ko
+sudo insmod hellomodule.ko
 ```
+
 The kernel has tried to insert your module.  If it is successful, you will see the log message that has been inserted into `/val/logs/system.log`.  If you type `lsmod` you will see your module is now inserted in the kernel.   
 
 ### 3.4 Uninstall Module
 To remove the kernel use the following command:
+
 ```
-        sudo rmmod hellomodule
+sudo rmmod hellomodule
 ```
+
 To verify that the module was uninstalled, check the system log and you should see our module exit message.
 You can also use the `lsmod` command to verify the module is no longer in the system.
 
@@ -330,9 +342,11 @@ You can also use the `lsmod` command to verify the module is no longer in the sy
 The device drivers can be dynamically installed into the kernel.  How does the kernel know which device driver to use with which device?  Each device will have corresponding device file that is located in the `/dev` directory.  If you list the file in that directory you will see all the devices currently known by the kernel.  These are not regular files.  They are virtual files that only supply data from or give data to the device.  
 
 To add a new device you need to create a new entry in the `/dev` directory.  Using the `mknod` command, you can create a new entry.
+
 ```
-        sudo mknod -m <permission> <location> <type of driver> <major number> <minor number>
+sudo mknod -m <permission> <location> <type of driver> <major number> <minor number>
 ```
+
 For our example we will create a device called `simple_character_device` with permissions (using standard file permissions [r,w,e]), is a character device (`c`) with major number of `240`. The major number should be unique and you can look at current devices already installed, but usually user modules start at 240.
 ```
         sudo mknod –m 777 /dev/simple_character_device c 240 0
