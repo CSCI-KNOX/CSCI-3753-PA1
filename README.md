@@ -342,7 +342,7 @@ For our example we will create a device called `simple_character_device` with pe
 Using your `hellomodule.c` as template, create a new device driver that will be modified to support the following functions:  open, read, write, seek, close.   You will need to create a buffer to store the data for this device.  It will exist as long as the module is installed.  Once it is uninstalled, all data will be lost.
 
 
-###                   NEED TO EXPLAIN INTERNAL JUMP TABLE AND FILE STRUCT
+###     -------NEED TO EXPLAIN INTERNAL JUMP TABLE AND FILE STRUCT-------
 
 ### 3.7 Write test application for testing new device driver
 Using the basic interactive testing code we have provided, test your code for `open/close`.
