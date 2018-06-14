@@ -9,10 +9,9 @@ int hello_init(void)
 	return 0;
 }
 
-int hello_exit(void)
+void hello_exit(void)
 {
 	printk(KERN_ALERT "inside %s function\n",__FUNCTION__);
-	return 0;
 }
 
 module_init(hello_init);
