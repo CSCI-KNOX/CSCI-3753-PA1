@@ -1,5 +1,5 @@
 # Programming Assignment One
-## CSCI 2753: Operating Systems, Summer 2018
+## CSCI 3753: Operating Systems, Summer 2018
 Due date and time:
 ```
      5pm Monday June 18th, 2018 - Completed addition of System Call (section 1 and 2)
@@ -135,7 +135,7 @@ zcat /proc/config.gz > .config
 
 To edit .config file using a menu run:
 ```text
-sudo make menuconfig
+make menuconfig
 ```
 Once the character based menuing is displayed, scroll down to select:
 ```text
@@ -150,7 +150,7 @@ Replace `-v7` with your name. Tab to the top directory and select `<Save>` and s
 ### 1.5 Compile the Kernel
 
 ```text
-sudo make -j4 CC="ccache gcc" modules dtbs zImage
+make -j4 CC="ccache gcc" modules dtbs zImage
 ```
 
 This will take about two and a half hours the first time.  We are using the ccache utility to make subsequent compiles much faster.
@@ -256,7 +256,7 @@ Now recompile the kernel using the instructions given in the previous section (s
 
 ### 2.5 Create test application to use new system call
 
-Now that you have recompiled the kernel and rebooted into the installed kernel, you will be able to use the system call. Write a test C program (check google or type man syscall) to see how to call a system call and what header files to include and what are the arguments. The first argument a system call takes is the system call number we talked about before. If everything succeeds a system call returns 0 otherwise it returns -1. Check `sudo tail /var/log/syslog` to or type `dmesg` to check the `printk` outputs.
+Now that you have recompiled the kernel and rebooted into the installed kernel, you will be able to use the system call. Write a test C program (check google or type man syscall) to see how to call a system call and what header files to include and what are the arguments. The first argument a system call takes is the system call number we talked about before. If everything succeeds a system call returns 0 otherwise it returns -1. Check `tail /var/log/syslog` to or type `dmesg` to check the `printk` outputs.
 
 ### 2.6 Create another system call taking parameters and returning a result value
 
@@ -356,7 +356,7 @@ For our example we will create a device called `simple_character_device` with pe
 Using your `hellomodule.c` as template, create a new device driver that will be modified to support the following functions:  open, read, write, seek, close.   You will need to create a buffer to store the data for this device.  It will exist as long as the module is installed.  Once it is uninstalled, all data will be lost.
 
 
-###                   NEED TO EXPLAIN INTERNAL JUMP TABLE AND FILE STRUCT
+###     -------NEED TO EXPLAIN INTERNAL JUMP TABLE AND FILE STRUCT-------
 
 ### 3.7 Write test application for testing new device driver
 Using the basic interactive testing code we have provided, test your code for `open/close`.
