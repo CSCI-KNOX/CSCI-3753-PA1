@@ -308,18 +308,16 @@ all:
 clean:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 ```
-STILL NEED UPDATE FOR DIFFERENCES IN RPI BUILDS
-```
-Now you have to compile your module.  There are a couple of ways to add our module to the list of modules to be built for a kernel.  One is to modify the makefile used by the kernel build.  The other is to write our own local makefile and attach it to the build when you want to make the modules.  Create your own make file,  create named `Makefile` and type the following single line in the file:
-```
-        obj-m:=hellomodule.o
-```
-Here `m` in `obj-m` means module and you are telling the compiler to create a module object named hellomodule.o as the result.  To build the module you will build modules for the kernel, but also include your local directory.  Enter the following command to compile the modules, `$PWD` adds your local directory with your module source.
+
+Here `m` in `obj-m` means module and you are telling the compiler to create a module object named hellomodule.o as the result.  To build the module you will build modules for the kernel run:
 
 ```
-       make –C lib/modules/$(uname -r)/build M=$PWD modules
+make
 ```
-You will see there is now a file named `hellomodule.ko`. This is the kernel module (.ko) object you will be inserting in the basic kernel image.
+
+
+You will see there is now a file named `hellomodule.ko`. This is the kernel module (.ko) object you will be
+inserting in the basic kernel image.
 
 ### 3.3 Install Module
 To insert the module, type the following command:
@@ -358,7 +356,7 @@ For our example we will create a device called `simple_character_device` with pe
 Using your `hellomodule.c` as template, create a new device driver that will be modified to support the following functions:  open, read, write, seek, close.   You will need to create a buffer to store the data for this device.  It will exist as long as the module is installed.  Once it is uninstalled, all data will be lost.
 
 
-###                   NEED TO EXPLAIN INTERNAL JUMP TABLE AND FILE STRUCT
+###     -------NEED TO EXPLAIN INTERNAL JUMP TABLE AND FILE STRUCT-------
 
 ### 3.7 Write test application for testing new device driver
 Using the basic interactive testing code we have provided, test your code for `open/close`.
