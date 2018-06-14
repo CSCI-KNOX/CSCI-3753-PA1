@@ -1,5 +1,5 @@
 # Programming Assignment One
-## CSCI 2753: Operating Systems, Summer 2018
+## CSCI 3753: Operating Systems, Summer 2018
 Due date and time:
 ```
      5pm Monday June 18th, 2018 - Completed addition of System Call (section 1 and 2)
@@ -135,7 +135,7 @@ zcat /proc/config.gz > .config
 
 To edit .config file using a menu run:
 ```text
-sudo make menuconfig
+make menuconfig
 ```
 Once the character based menuing is displayed, scroll down to select:
 ```text
@@ -150,7 +150,7 @@ Replace `-v7` with your name. Tab to the top directory and select `<Save>` and s
 ### 1.5 Compile the Kernel
 
 ```text
-sudo make -j4 CC="ccache gcc" modules dtbs zImage
+make -j4 CC="ccache gcc" modules dtbs zImage
 ```
 
 This will take about two and a half hours the first time.  We are using the ccache utility to make subsequent compiles much faster.
@@ -256,7 +256,7 @@ Now recompile the kernel using the instructions given in the previous section (s
 
 ### 2.5 Create test application to use new system call
 
-Now that you have recompiled the kernel and rebooted into the installed kernel, you will be able to use the system call. Write a test C program (check google or type man syscall) to see how to call a system call and what header files to include and what are the arguments. The first argument a system call takes is the system call number we talked about before. If everything succeeds a system call returns 0 otherwise it returns -1. Check `sudo tail /var/log/syslog` to or type `dmesg` to check the `printk` outputs.
+Now that you have recompiled the kernel and rebooted into the installed kernel, you will be able to use the system call. Write a test C program (check google or type man syscall) to see how to call a system call and what header files to include and what are the arguments. The first argument a system call takes is the system call number we talked about before. If everything succeeds a system call returns 0 otherwise it returns -1. Check `tail /var/log/syslog` to or type `dmesg` to check the `printk` outputs.
 
 ### 2.6 Create another system call taking parameters and returning a result value
 
@@ -308,16 +308,18 @@ all:
 clean:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 ```
-
-Here `m` in `obj-m` means module and you are telling the compiler to create a module object named hellomodule.o as the result.  To build the module you will build modules for the kernel run:
+STILL NEED UPDATE FOR DIFFERENCES IN RPI BUILDS
+```
+Now you have to compile your module.  There are a couple of ways to add our module to the list of modules to be built for a kernel.  One is to modify the makefile used by the kernel build.  The other is to write our own local makefile and attach it to the build when you want to make the modules.  Create your own make file,  create named `Makefile` and type the following single line in the file:
+```
+        obj-m:=hellomodule.o
+```
+Here `m` in `obj-m` means module and you are telling the compiler to create a module object named hellomodule.o as the result.  To build the module you will build modules for the kernel, but also include your local directory.  Enter the following command to compile the modules, `$PWD` adds your local directory with your module source.
 
 ```
-make
+       make –C lib/modules/$(uname -r)/build M=$PWD modules
 ```
-
-
-You will see there is now a file named `hellomodule.ko`. This is the kernel module (.ko) object you will be
-inserting in the basic kernel image.
+You will see there is now a file named `hellomodule.ko`. This is the kernel module (.ko) object you will be inserting in the basic kernel image.
 
 ### 3.3 Install Module
 To insert the module, type the following command:
