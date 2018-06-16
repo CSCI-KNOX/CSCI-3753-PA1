@@ -135,7 +135,7 @@ zcat /proc/config.gz > .config
 
 To edit .config file using a menu run:
 ```text
-make menuconfig
+sudo make menuconfig
 ```
 Once the character based menuing is displayed, scroll down to select:
 ```text
@@ -150,7 +150,7 @@ Replace `-v7` with your name. Tab to the top directory and select `<Save>` and s
 ### 1.5 Compile the Kernel
 
 ```text
-make -j4 CC="ccache gcc" modules dtbs zImage
+sudo make -j4 CC="ccache gcc" modules dtbs zImage
 ```
 
 This will take about two and a half hours the first time.  We are using the ccache utility to make subsequent compiles much faster.
@@ -166,14 +166,24 @@ sudo cp arch/arm/boot/dts/overlays/README /boot/overlays/
 sudo cp arch/arm/boot/zImage /boot/<kernel_name>.img
 ```
 
-Replace `<kernel_name>` with any name you like.  Make sure **NOT** to name it `kenrel7` since this is the default kernel name already installed on your system. If you do so and your platform doesn't boot, you will have to start the assignment from the beginning!  (See 1.7)
+Replace `<kernel_name>` with any name you like.  Make sure **NOT** to name it `kernel7` since this is the default kernel name already installed on your system. If you do so and your platform doesn't boot, you will have to start the assignment from the beginning!  (See 1.7)
 
 ### 1.6 Telling the boot process to use your kernel
 When the system is booting, it gets the name of the kernel from the `config.txt` file that is located in the `boot` partition.  To specify that you want to load your new kernel, you must edit the `config.txt` file and add a line:
 ```
 kernel=<kernel_name>.img
 ```
-where <kernel_name> is the name you used in the `cp` command above to copy the kernel into the boot partition.
+where <kernel_name> is the name you used in the `cp` command above to copy the kernel into the boot partition.  If you insert your line at the beginning of `/boot/config.txt`, it will look something like this:
+```
+head -6 /boot/config.txt
+
+#
+# Some settings may impact device functionality. See link above for details  
+kernel=Knox2.img
+
+# uncomment if you get no picture on HDMI for a default "safe" mode  
+
+```
 
 ### 1.7 Rebooting to your newly built Kernel
 ```text
@@ -224,7 +234,7 @@ Explanation:
 2. `Linkage.h` defines macros that are used to keep the stack safe and ordered.
 3. Asmlinkage is a `#define` for some `gcc` magic that tells the compiler that the function should not expect to find any of its arguments in registers (a common optimization), but only on the CPU's stack. It is defined in the linkage.h header files
 4. We have named the function sys_helloworld because all system calls’ name start with `sys_prefix`.
-5. The function printk is used to print out kernel messages, and here we are using it with the KERN EMERG macro to print out "Hello World!" as if it were a kernel emergency. Note that depending on your system settings, printk message may not print to your terminal. Most of the time they only get printed to the kernel syslog (`/var/log/syslog`) system. If the severity level is high enough, they will also print to the terminal. Look up printk online or in the kernel docs for more information.
+5. The function printk is used to print out kernel messages, and here we are using it with the KERN ALERT macro to print out "Hello World!" as if it were a kernel emergency. Note that depending on your system settings, printk message may not print to your terminal. Most of the time they only get printed to the kernel syslog (`/var/log/syslog`) system. If the severity level is high enough, they will also print to the terminal. Look up printk online or in the kernel docs for more information.
 
 
 ### 2.2 Add to kernel makefile
@@ -253,10 +263,13 @@ Add the prototype of your system call at the end of the file before the endif. C
 ### 2.4 Recompile and run
 
 Now recompile the kernel using the instructions given in the previous section (see section 1.5). You only have to move the new kernel to `/boot` directory.
+```
+sudo cp arch/arm/boot/zImage /boot/<kernel_name>.img
+```
 
 ### 2.5 Create test application to use new system call
 
-Now that you have recompiled the kernel and rebooted into the installed kernel, you will be able to use the system call. Write a test C program (check google or type man syscall) to see how to call a system call and what header files to include and what are the arguments. The first argument a system call takes is the system call number we talked about before. If everything succeeds a system call returns 0 otherwise it returns -1. Check `tail /var/log/syslog` to or type `dmesg` to check the `printk` outputs.
+Now that you have recompiled the kernel and rebooted into the installed kernel, you will be able to use the system call. Write a test C program (check google or type man syscall) to see how to call a system call and what header files to include and what are the arguments. The first argument a system call takes is the system call number we talked about before. If everything succeeds a system call returns 0 otherwise it returns -1. Check `sudo tail /var/log/syslog` to or type `dmesg` to check the `printk` outputs.
 
 ### 2.6 Create another system call taking parameters and returning a result value
 
@@ -297,44 +310,33 @@ In the project directory you should find the `hellomodule.c` and `Makefile` file
 This simple source file has all the code needed to install and uninstall an LKM in the kernel.  There are two macros listed at the bottom of the source file that setup the jump table for this LKM.  Whenever the module is installed, the kernel will call the routine specified in the `module_init` macro, and the routine specified in the `module_exit` will be called when the module is uninstalled.
 
 ### 3.2 Create a Makefile
-
-Now you have to compile your module.  There are a couple of ways to add our module to the list of modules to be built for a kernel.  One is to modify the makefile used by the kernel build.  The other is to write our own local makefile and attach it to the build when you want to make the modules.  Create your own make file,  create named `Makefile` and type the following lines in the file:
-
-```Makefile
-obj-m:= hellomodule.o
-all:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
-
-clean:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 ```
-
-Here `m` in `obj-m` means module and you are telling the compiler to create a module object named hellomodule.o as the result.  To build the module you will build modules for the kernel run:
+STILL NEED UPDATE FOR DIFFERENCES IN RPI BUILDS
+```
+Now you have to compile your module.  There are a couple of ways to add our module to the list of modules to be built for a kernel.  One is to modify the makefile used by the kernel build.  The other is to write our own local makefile and attach it to the build when you want to make the modules.  Create your own make file,  create named `Makefile` and type the following single line in the file:
+```
+        obj-m:=hellomodule.o
+```
+Here `m` in `obj-m` means module and you are telling the compiler to create a module object named hellomodule.o as the result.  To build the module you will build modules for the kernel, but also include your local directory.  Enter the following command to compile the modules, `$PWD` adds your local directory with your module source.
 
 ```
-make
+       make –C lib/modules/$(uname -r)/build M=$PWD modules
 ```
-
-
 You will see there is now a file named `hellomodule.ko`. This is the kernel module (.ko) object you will be
 inserting in the basic kernel image.
 
 ### 3.3 Install Module
 To insert the module, type the following command:
-
 ```
-sudo insmod hellomodule.ko
+       sudo insmod hellomodule.ko
 ```
-
 The kernel has tried to insert your module.  If it is successful, you will see the log message that has been inserted into `/val/logs/system.log`.  If you type `lsmod` you will see your module is now inserted in the kernel.   
 
 ### 3.4 Uninstall Module
 To remove the kernel use the following command:
-
 ```
-sudo rmmod hellomodule
+        sudo rmmod hellomodule
 ```
-
 To verify that the module was uninstalled, check the system log and you should see our module exit message.
 You can also use the `lsmod` command to verify the module is no longer in the system.
 
@@ -342,11 +344,9 @@ You can also use the `lsmod` command to verify the module is no longer in the sy
 The device drivers can be dynamically installed into the kernel.  How does the kernel know which device driver to use with which device?  Each device will have corresponding device file that is located in the `/dev` directory.  If you list the file in that directory you will see all the devices currently known by the kernel.  These are not regular files.  They are virtual files that only supply data from or give data to the device.  
 
 To add a new device you need to create a new entry in the `/dev` directory.  Using the `mknod` command, you can create a new entry.
-
 ```
-sudo mknod -m <permission> <location> <type of driver> <major number> <minor number>
+        sudo mknod -m <permission> <location> <type of driver> <major number> <minor number>
 ```
-
 For our example we will create a device called `simple_character_device` with permissions (using standard file permissions [r,w,e]), is a character device (`c`) with major number of `240`. The major number should be unique and you can look at current devices already installed, but usually user modules start at 240.
 ```
         sudo mknod –m 777 /dev/simple_character_device c 240 0
@@ -356,7 +356,7 @@ For our example we will create a device called `simple_character_device` with pe
 Using your `hellomodule.c` as template, create a new device driver that will be modified to support the following functions:  open, read, write, seek, close.   You will need to create a buffer to store the data for this device.  It will exist as long as the module is installed.  Once it is uninstalled, all data will be lost.
 
 
-###     -------NEED TO EXPLAIN INTERNAL JUMP TABLE AND FILE STRUCT-------
+###                   NEED TO EXPLAIN INTERNAL JUMP TABLE AND FILE STRUCT
 
 ### 3.7 Write test application for testing new device driver
 Using the basic interactive testing code we have provided, test your code for `open/close`.
