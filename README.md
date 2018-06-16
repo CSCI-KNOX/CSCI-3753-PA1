@@ -150,7 +150,7 @@ Replace `-v7` with your name. Tab to the top directory and select `<Save>` and s
 ### 1.5 Compile the Kernel
 
 ```text
-sudo make -j4 CC="ccache gcc" modules dtbs zImage
+make -j4 CC="ccache gcc" modules dtbs zImage
 ```
 
 This will take about two and a half hours the first time.  We are using the ccache utility to make subsequent compiles much faster.
