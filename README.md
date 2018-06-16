@@ -135,7 +135,7 @@ zcat /proc/config.gz > .config
 
 To edit .config file using a menu run:
 ```text
-sudo make menuconfig
+make menuconfig
 ```
 Once the character based menuing is displayed, scroll down to select:
 ```text
