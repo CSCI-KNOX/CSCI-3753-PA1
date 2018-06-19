@@ -145,7 +145,7 @@ In the general setup menu, we want to select the name of our kernel version.  It
 ```text
 (-v7) Local version - append to kernel release
 ```
-Replace `-v7` with your name. Tab to the top directory and select `<Save>` and save it to the .config file (default).  Use left arrow to select the `Exit` from the general setup menu and left arraw again to select `Exit` from the `menuconfig` application.
+Replace `-v7` with your name. Tab to the top directory and select `<Save>` and save it to the .config file (default).  Use left arrow to select the `Exit` from the general setup menu and left arrow again to select `Exit` from the `menuconfig` application.
 
 ### 1.5 Compile the Kernel
 
