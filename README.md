@@ -6,7 +6,7 @@ Due date and time:
      5pm Friday June 15th, 2018 to receive **bonus** for early completion
 
      10:30am Friday June 22th, 2018 - Completed addition of Loadable Kernel Module (section 3)
-     10:30am-2pm Friday June 22th, 2018 - Interviews for Programming Assignment One
+     12pm-2pm Friday June 22th, 2018 - Interviews for Programming Assignment One
 ```
 
 ## Introduction: Welcome to the first programming assignment for CSCI 3753 - Design and Analysis of Operating Systems.
