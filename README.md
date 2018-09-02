@@ -1,13 +1,6 @@
 # Programming Assignment One
-## CSCI 3753: Operating Systems, Summer 2018
-Due date and time:
-```
-     5pm Monday June 18th, 2018 - Completed addition of System Call (section 1 and 2)
-     5pm Friday June 15th, 2018 to receive **bonus** for early completion
+## CSCI 3753: Operating Systems, Fall 2018
 
-     10:30am Friday June 22th, 2018 - Completed addition of Loadable Kernel Module (section 3)
-     10:30am-2pm Friday June 22th, 2018 - Interviews for Programming Assignment One
-```
 
 ## Introduction: Welcome to the first programming assignment for CSCI 3753 - Design and Analysis of Operating Systems.
 In this assignment we will install and configure tools needed to compile the Linux kernel, build a new kernel, add a new custom system call, and add a new device driver.
@@ -38,13 +31,12 @@ sudo reboot
 
 ### 1.1 Download Tools
 
-Now let's install necessary programs.
-
+Now let's install necessary programs if you have not already installed them.
 ```text
-sudo apt install git bc vim libncurses5-dev make gcc ccache
+sudo apt install git vim libncurses5-dev make gcc ccache
 ```
 
-### 1.2 Configuring git
+### 1.2 Configuring `git`
 
 For `git` to work properly we need to do some minimal configurations. We need to add our name, email, and editor. Replace `"Your Name"` and `youremail@example.com` with your name and your email.
 
@@ -67,54 +59,16 @@ git config --list
 
 If you have never used git, we recommend skimming thought this free [book](https://git-scm.com/book/en/v2).
 
-### 1.3 Additional Tools (optional)
+### 1.3 Download Source code for Linux
 
-If your going to access your Raspberry Pi remotely, we highly recommend that you use `tmux` to allow you to have multiple text windows available both on the platform, but also can be shared with SSH connections.
-
-```text
-sudo apt install tmux
-```
-
-Tmux is a terminal multiplexer allowing you to disconnect from remote hosts while processes are still running. If, for any reason, you are disconnect form your Pi, the compile process --  if started in `tmux` --  will still be running. It also provides terminal tabs.
-
-To start using tmux, create a new session.
-
-```text
-tmux new -s pa1
-```
-You will notice on the bottom of your screen a green bar with `[pa1] 0:bash*`. Also note that `pa1` can be anything. This is just a name. You can have multiple sessions at a time with different names.
-
-Now lets detach from our session. To send a command to tmux we use `Ctrl+b`. To detach, first `Ctrl+b` followed by `d`. Now the green bar will no longer be displayed. Something to note here is that our pa1 session is still running. We can check this with:
-
-```text
-tmux ls
-pa1: 1 windows (created Thu Jun  7 22:37:36 2018) [80x23]
-```
-to reattach to `pa1` session we use:
-
-```text
-tmux a -t pa1
-```
-> Note: to exit tmux type `exit` in the terminal
-
-If you're remotely connected to the Pi and want to keep running a program but want to disconnect. You first connect to the Pi using `ssh`. Start a tmux session and run the program inside tmux. Then detach from session and disconnect for the ssh connection. The program will keep running inside tmux.
-
-### 1.3.1 Terminal Tabs
-
-One great thing about tmux is it allows you to have multiple tabs. To create a new tab type `Ctrl+b` followed by `c`. The bottom green bar should look something like this `[pa1] 0:bash- 1:bash*`. Notice how there is an asterisk on `1:bash*`. To move back and forth between the tabs type `Ctrl+b` then `n` for next and `p` for previous.
-
-Tmux is a very powerful program and extremely customizable. I'll leave it up to you to explore it.
-
-### 1.4 Download Source code for Linux
-
-Now we will download kernel source code.
+Now we will download kernel source code if you have not already downloaded it.
 
 ```text
 cd ~
 git clone --depth 1 https://github.com/raspberrypi/linux.git
 ```
 
-To use the same configuration as our current kernel we need to enable configs module.
+To use the same configuration as our current kernel that is running, we need to enable configs module.
 
 ```text
 sudo modprobe configs
@@ -147,7 +101,7 @@ In the general setup menu, we want to select the name of our kernel version.  It
 ```
 Replace `-v7` with your name. Tab to the top directory and select `<Save>` and save it to the .config file (default).  Use left arrow to select the `Exit` from the general setup menu and left arrow again to select `Exit` from the `menuconfig` application.
 
-### 1.5 Compile the Kernel
+### 1.4 Compile the Kernel
 
 ```text
 make -j4 CC="ccache gcc" modules dtbs zImage
@@ -168,20 +122,20 @@ sudo cp arch/arm/boot/zImage /boot/<kernel_name>.img
 
 Replace `<kernel_name>` with any name you like.  Make sure **NOT** to name it `kenrel7` since this is the default kernel name already installed on your system. If you do so and your platform doesn't boot, you will have to start the assignment from the beginning!  (See 1.7)
 
-### 1.6 Telling the boot process to use your kernel
+### 1.5 Telling the boot process to use your kernel
 When the system is booting, it gets the name of the kernel from the `config.txt` file that is located in the `boot` partition.  To specify that you want to load your new kernel, you must edit the `config.txt` file and add a line:
 ```
 kernel=<kernel_name>.img
 ```
 where <kernel_name> is the name you used in the `cp` command above to copy the kernel into the boot partition.
 
-### 1.7 Rebooting to your newly built Kernel
+### 1.6 Rebooting to your newly built Kernel
 ```text
  sudo reboot
 ```
 You are now booting and running your newly built kernel.
 
-### 1.8 What if your new kernel does not run?
+### 1.7 What if your new kernel does not run?
 
 If your kernel boots, but does not behave correctly, you can edit the `<device>/boot/.config` file and remove (or comment out) the `kernel=<kernel_name>.img` line, which will then default back to the original kernel.  Save the file and reboot.  You should be back to where you were before step 1.6 was performed.
 
