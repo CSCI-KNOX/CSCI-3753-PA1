@@ -1,5 +1,6 @@
 # Programming Assignment One
 ## CSCI 3753: Operating Systems, Fall 2018
+## Description assume use of Raspberry Pi 3
 
 
 ## Introduction: Welcome to the first programming assignment for CSCI 3753 - Design and Analysis of Operating Systems.
