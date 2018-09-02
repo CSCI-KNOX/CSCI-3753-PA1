@@ -220,7 +220,7 @@ If everything until now has been perfect, now you have to write a new system cal
 In your system call implementation, you *must* use ​`printk` to log the numbers to be added, add those two numbers, store the result location.  Again, use `printk` to log the result being calculated in the system call.  Finally, `printf` in the test program (running in userspace) to show the returned value.
 
 ### 2.7 **You MUST Submit Your Work for sections 1 and 2**
-After you have completed sections 1 and 2, please submit your code for the new system call you have created along with your test program.  Create a zip file (use filename: `<your last name>\_PA1_A.zio`) with all the files you have modified to create your new system call.  Submit that zip file as your submission on Moodle for PA1.
+After you have completed sections 1 and 2, please submit your code for the new system call you have created along with your test program.  Create a zip file (use filename: `<your last name>_PA1_CHECKPOINT.zio`) with all the files you have modified to create your new system call.  Submit that zip file as your submission on Moodle for PA1 Checkpoint.
 
 ---
 
@@ -328,7 +328,7 @@ Then test your `write` code.  Then your `read` code.  Now you have a working dev
 * _modprobe_: Insert/remove an LKM or set of LKMs intelligently (e.g., if module A must be loaded before loading module B, modprobe will automatically load A when module B is requested to be loaded)
 
 ## 3.9 **You MUST Submit Your Work for section 3**
-After you have completed section 3, please submit your code for the new device driver you have created.  Create a zip file (use filename: `<your last name>\_PA1.zio`) with all the files you have modified to create your new device driver.  Submit that zip file as your submission on Moodle for PA1.
+After you have completed section 3, please submit your code for the new device driver you have created.  Create a zip file (use filename: `<your last name>_PA1.zio`) with all the files you have modified to create your new device driver.  Submit that zip file as your submission on Moodle for PA1.
 
 ---
 
