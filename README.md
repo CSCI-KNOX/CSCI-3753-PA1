@@ -1,7 +1,6 @@
-# Programming Assignment One
+# Programming Assignment One (Version: 1.0)
 ## CSCI 3753: Operating Systems, Fall 2018
-## Description assume use of Raspberry Pi 3
-
+## Description assumes the use of a Raspberry Pi 3
 
 ## Introduction: Welcome to the first programming assignment for CSCI 3753 - Design and Analysis of Operating Systems.
 In this assignment we will install and configure tools needed to compile the Linux kernel, build a new kernel, add a new custom system call, and add a new device driver.
