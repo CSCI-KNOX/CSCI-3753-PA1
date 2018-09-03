@@ -1,4 +1,4 @@
-# Programming Assignment One (Version: 1.0)
+# Programming Assignment One (Version: 1.1)
 ## CSCI 3753: Operating Systems, Fall 2018
 ## Description assumes the use of a Raspberry Pi 3
 
@@ -149,6 +149,10 @@ You can edit the `<device>/boot/.config` file and remove (or comment out) the `k
 ---
 
 ## 2. Creating a Custom System Call
+The API calls that are supported by the kernel change over time.  Now we are going to extend the current API with new functionality.  You have just finished creating a kernel from source and have made sure that it works.   You can now add new functionality by adding code to the current API and system call table.  Once that is completed, you will add a new source file to the kernel build.
+
+Once you have completed adding the new functionality, you will need to write some test code to validate the call.  You should remember to test not only values that are legal, but also try illegal values to verify your kernel does not behave poorly and that it does not crash.
+
 ### 2.1 Create source code file
 
 Now you have to write the actual system call. You will be adding code into the kernel directories and making that source part of the kernel build.  
@@ -159,8 +163,7 @@ ls
 vim helloworld.c
 ```
 You will be saving a new file in the kernel directory when you save the file.
-
-and copy paste the following code snippet and save it. We have also provided this file so you can copy it from git.
+Copy and paste the following code snippet into the file and save it. We have also provided this file so you can copy it from `git`.
 
 ```c
 1. #include <linux/kernel.h>
@@ -173,22 +176,20 @@ and copy paste the following code snippet and save it. We have also provided thi
 ```
 
 Explanation:
-
-1. Now kernel.h header file makes us able to use the many constants and functions that are used in kernel hacking, including the `printk` function.
+1. Now kernel.h header file makes us able to use the many constants and functions that are used in kernel development, including the `printk` function.
 2. `Linkage.h` defines macros that are used to keep the stack safe and ordered.
 3. Asmlinkage is a `#define` for some `gcc` magic that tells the compiler that the function should not expect to find any of its arguments in registers (a common optimization), but only on the CPU's stack. It is defined in the linkage.h header files
-4. We have named the function sys_helloworld because all system calls’ name start with `sys_prefix`.
+4. We have named the function sys_helloworld because all system calls’ name start with `sys_prefix` (`sys_` in this case).
 5. The function printk is used to print out kernel messages, and here we are using it with the KERN EMERG macro to print out "Hello World!" as if it were a kernel emergency. Note that depending on your system settings, printk message may not print to your terminal. Most of the time they only get printed to the kernel syslog (`/var/log/syslog`) system. If the severity level is high enough, they will also print to the terminal. Look up printk online or in the kernel docs for more information.
-
 
 ### 2.2 Add to kernel makefile
 
-Now we have to tell the build system about our kernel call. Open the file `linux/arch/arm/kernel/Makefile​`. Inside you will see a host of lines that begin with `obj+=`. After the end of the lines adding objects to the list, add the following line (but do not place it inside any special control statements in the file)
+Now we have to tell the build system about our kernel call. Open the file `linux/arch/arm/kernel/Makefile​`. Inside you will see a host of lines that begin with `obj+=`. These are building the set of compiled object required for building the kernel.  After the end of the lines adding objects to the list you are going to append your file to the list.  Add the following line (but do not place it inside any special control statements in the file):
 
 ```text
 obj-y+=helloworld.o
 ```
-This line adds your new system call code to the list of files to be built with the kernel.
+This line adds your new system call code to the list of files to be built with the kernel.  When you perform the `make` that we did previously (section ???) the new file will also be compiled and linked int the kernel.
 
 ### 2.3 Add to kernel jump table
 
@@ -196,13 +197,13 @@ Now you have to add that system call in the system table of the kernel. Go to th
 ```text
 vim ~/linux/arch/arm/tools/syscall.tbl
 ```
-You must also add your call to the list of system calls in the `syscalls.h` include file.
+You must also add your call to the list of system calls in the `syscalls.h` include file so applications can call the new functionality.
 
 ```text
 vim ~/linux/include/linux/syscalls.h
 ```
 
-Add the prototype of your system call at the end of the file before the endif. Check the file structure or google if you have trouble.
+Add the prototype of your system call at the end of the file before the endif. Check the structure of other calls or check google if you have trouble getting the syntax correct.
 
 ### 2.4 Recompile and run
 
@@ -217,7 +218,7 @@ Now that you have recompiled the kernel and rebooted into the installed kernel, 
 If everything until now has been perfect, now you have to write a new system call. Name the new system call `cs3753_add`, which has three parameters and returns 0 if no error was detected.
 ​The call takes the first two integer parameters and adds them together.  The third parameter is an address (in user space) of an integer in which the results will be stored.   You will need to write a test program that calls the new system call and passes the correct type of arguments.  You should test all types of possible errors that could occur in passing values and parameters to the system call.
 
-In your system call implementation, you *must* use ​`printk` to log the numbers to be added, add those two numbers, store the result location.  Again, use `printk` to log the result being calculated in the system call.  Finally, `printf` in the test program (running in userspace) to show the returned value.
+In your system call implementation, you **must** use ​`printk` to log the numbers to be added, add those two numbers, store the result location.  Again, use `printk` to log the result being calculated in the system call.  Finally, `printf` in the test program (running in userspace) to show the returned value.
 
 ### 2.7 **You MUST Submit Your Work for sections 1 and 2**
 After you have completed sections 1 and 2, please submit your code for the new system call you have created along with your test program.  Create a zip file (use filename: `<your last name>_PA1_CHECKPOINT.zio`) with all the files you have modified to create your new system call.  Submit that zip file as your submission on Moodle for PA1 Checkpoint.
@@ -309,7 +310,79 @@ For our example we will create a device called `simple_character_device` with pe
 ### 3.6 Modify device driver to support open, close, read, write, seek
 Using your `hellomodule.c` as template, create a new device driver that will be modified to support the following functions:  open, read, write, seek, close.   You will need to create a buffer to store the data for this device.  It will exist as long as the module is installed.  Once it is uninstalled, all data will be lost.
 
+###     -------NEED TO EXPLAIN INTERNAL JUMP TABLE AND FILE STRUCT-------
 
+The function cited below is used for registering character devices:
+
+int register_chrdev (unsigned int   major,
+                     const char *   name,
+                     const struct   fops);
+                     file_operations *
+
+Here, we specify the name and major number of a device to register it, after which the device and the file_operations structure will be linked. If we assign zero to the major parameter, the function will allocate a major device number (i.e. the value it returns) on its own. If the value returned is zero, this signifies success, while a negative number signifies an error. Both device numbers are specified in the 0–255 range.
+
+We pass the device name as a string value of the name parameter (this string can also pass the name of a module if it registers a single device). We then use this string to identify a device in the /sys/devices file. Device file operations such as read, write, and save are processed by the function pointers stored within the file_operations structure. These functions are implemented by the module and the pointers to the module structure identifying this module are also stored within the file_operations structure. Here you can see the 2.6.32 kernel version structure:
+
+```
+struct file_operations {
+       struct module *owner;
+       loff_t (*llseek) (struct file *, loff_t, int);
+       ssize_t (*read) (struct file *, char *, size_t, loff_t *);
+       ssize_t (*write) (struct file *, const char *, size_t, loff_t *);
+       int (*readdir) (struct file *, void *, filldir_t);
+       unsigned int (*poll) (struct file *, struct poll_table_struct *);
+       int (*ioctl) (struct inode *, struct file *, unsigned int, unsigned long);
+       int (*mmap) (struct file *, struct vm_area_struct *);
+       int (*open) (struct inode *, struct file *);
+       int (*flush) (struct file *);
+       int (*release) (struct inode *, struct file *);
+       int (*fsync) (struct file *, struct dentry *, int datasync);
+       int (*fasync) (int, struct file *, int);
+       int (*lock) (struct file *, int, struct file_lock *);
+       ssize_t (*readv) (struct file *, const struct iovec *, unsigned long,
+          loff_t *);
+       ssize_t (*writev) (struct file *, const struct iovec *, unsigned long,
+          loff_t *);
+    };
+```
+
+### 3.6.1 The file_operations Structure
+
+If the file_operations structure contains some functions that aren’t required, you can still use the file without implementing them. A pointer to an unimplemented function can simply be set to be zero. After that, the system will take care of the implementation of the function and make it behave normally. In our case, we'll just implement the read function.
+
+As we're going to ensure the operation of only a single type of device with our Linux driver, our file_operations structure will be global and static. Correspondingly, after it's created, we'll need to fill it statically. Here you can see how this is done:
+
+static struct file_operations simple_driver_fops =
+{
+    .owner   = THIS_MODULE,
+    .read    = device_file_read,
+};
+
+The declaration of the THIS_MODULE macro is contained in the linux/module.h header file. We transform the macro into the pointer to the module structure of the required module. A bit later, we'll get to writing the body of the function with a prototype, but right now we have only the pointer to it, which is device_file_read.
+
+ssize_t device_file_read (struct file *, char *, size_t, loff_t *);
+
+The file_operations structure allows us to write several functions that will perform and revoke the registration of the device file.
+
+    static int device_file_major_number = 0;
+static const char device_name[] = "Simple-driver";
+static int register_device(void)
+{
+        int result = 0;
+        printk( KERN_NOTICE "Simple-driver: register_device() is called." );
+        result = register_chrdev( 0, device_name, &simple_driver_fops );
+        if( result < 0 )
+        {
+            printk( KERN_WARNING "Simple-driver:  can\'t register character device with errorcode = %i", result );
+            return result;
+        }
+        device_file_major_number = result;
+        printk( KERN_NOTICE "Simple-driver: registered character device with major number = %i and minor numbers 0...255"
+             , device_file_major_number );
+        return 0;
+}
+
+The device_file_major_number is a global variable that contains the major device number. When the lifetime of the driver expires, this global variable will revoke the registration of the device file.
 ###     -------NEED TO EXPLAIN INTERNAL JUMP TABLE AND FILE STRUCT-------
 
 ### 3.7 Write test application for testing new device driver
