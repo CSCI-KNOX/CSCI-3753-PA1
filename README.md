@@ -403,16 +403,27 @@ The final parameter above provides a location to write the new position for the 
 Using the basic interactive testing code we have provided, test your code for `open/close`.
 Then test your `write` code.  Then your `read` code.  Now you have a working device that can read and write.  But you also need to be able to seek to a location and perform functions from that location within the data.  You must implement `seek` and also add code to the testing application to call the seek system call.
 
+Make sure to test all your functionality.  You will need to write your own testing application that can read, write, and seek to any position within the file.  The next operation will take place from the ending position of the previous command.  If you seek to a position, the next read or write would occur starting at that position.
+
+For a quick testing of your device driver, try using `echo` and `cat` to access the device file.  Using shell's ability to redirect output you can cause an open(), write(), close() to be performed on the device with the following command.
+```
+echo 'hello world' > /dev/simple_character_device
+```
+To test the reading of characters from the device, try using the `cat` command, which will open, read repeatedly until EOF is reached, and then close the file.
+```
+cat /dev/simple_character_device
+```
+
 
 ### 3.5 Utilities for Loadable Kernel Modules
-* _insmod_:   Insert an LKM into the kernel.
-* _rmmod_:    Remove an LKM from the kernel.
-* _depmod_:   Determine interdependencies between LKMs.
-* _kerneld_:  Kerneld daemon program
-* _ksyms_:    Display symbols that are exported by the kernel for use by new LKMs.
-* _lsmod_:    List currently loaded LKMs.
-* _modinfo_:  Display contents of .modinfo section in an LKM object file.
-* _modprobe_: Insert/remove an LKM or set of LKMs intelligently (e.g., if module A must be loaded before loading module B, modprobe will automatically load A when module B is requested to be loaded)
+* `insmod` :   Insert an LKM into the kernel.
+* `rmmod` :    Remove an LKM from the kernel.
+* `depmod` :   Determine interdependencies between LKMs.
+* `kerneld` :  Kerneld daemon program
+* `ksyms` :    Display symbols that are exported by the kernel for use by new LKMs.
+* `lsmod` :    List currently loaded LKMs.
+* `modinfo` :  Display contents of .modinfo section in an LKM object file.
+* `modprobe` : Insert/remove an LKM or set of LKMs intelligently (e.g., if module A must be loaded before loading module B, modprobe will automatically load A when module B is requested to be loaded)
 
 ### 3.6 **You MUST Submit Your Work for section 3**
 After you have completed section 3, please submit your code for the new device driver you have created.  Create a zip file (use filename: `<your last name>_PA1.zio`) with all the files you have modified to create your new device driver.  Submit that zip file as your submission on Moodle for PA1.
