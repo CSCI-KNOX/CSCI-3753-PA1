@@ -414,7 +414,7 @@ Then test your `write` code.  Then your `read` code.  Now you have a working dev
 * _modinfo_:  Display contents of .modinfo section in an LKM object file.
 * _modprobe_: Insert/remove an LKM or set of LKMs intelligently (e.g., if module A must be loaded before loading module B, modprobe will automatically load A when module B is requested to be loaded)
 
-###s 3.6 **You MUST Submit Your Work for section 3**
+#### 3.6 **You MUST Submit Your Work for section 3**
 After you have completed section 3, please submit your code for the new device driver you have created.  Create a zip file (use filename: `<your last name>_PA1.zio`) with all the files you have modified to create your new device driver.  Submit that zip file as your submission on Moodle for PA1.
 
 ---
