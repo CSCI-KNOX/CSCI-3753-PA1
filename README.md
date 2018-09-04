@@ -186,7 +186,7 @@ Explanation:
 
 Now we have to tell the build system about our kernel call. Open the file `linux/arch/arm/kernel/Makefile​`. Inside you will see a host of lines that begin with `obj+=`. These are building the set of compiled object required for building the kernel.  After the end of the lines adding objects to the list you are going to append your file to the list.  Add the following line (but do not place it inside any special control statements in the file):
 
-```text
+```makefile
 obj-y+=helloworld.o
 ```
 This line adds your new system call code to the list of files to be built with the kernel.  When you perform the `make` that we did previously (section ???) the new file will also be compiled and linked int the kernel.
@@ -238,20 +238,21 @@ The kernel isolates certain functions, including the modules, especially well an
  There is a tendency to think of LKMs like user space programs.  Modules do share a lot of user space program properties, but LKMs are definitely not user space programs. LKMs (when loaded) are very much part of the kernel.  As such, they have free run of the system and can easily crash it.
 
 LKMs have several advantages:
-1. You don't have to rebuild your kernel
-2. LKMs help you diagnose system problems. A bug in a device driver which is bound into the kernel can stop your system from booting at all;
-3. LKMs can save you memory, because you have to have them loaded only when you're actually using them
+1. You don't have to rebuild your kernel.
+2. LKMs help you diagnose system problems. A bug in a device driver which is bound into the kernel can stop your system from booting at all.
+3. LKMs can save you memory, because you have to have them loaded only when you're actually using them.
 4. LKMs are much faster to maintain and debug.
 
-### Building Loadable Kernel Modules (LKM)
+### 3.1 Building Loadable Kernel Modules (LKM)
 LKMs are object files used to extend a running kernel’s functionality. This is basically a piece of binary code that can be inserted and installed in the kernel on the fly without the need to reboot. This is very handy when you are trying to work with some new device and will be repeatedly be writing and testing your code.  It is very convenient to write system code, install it, test it, and then uninstall it, without ever needing to reboot the system.  
 
-### 3.1 Create source code for new device driver
+#### 3.1.1 Create source code for new device driver
 The kernel uses jump tables to call the correct device drivers and functions of those drivers.  Each LKM must define a standard jump table to support the kernels dynamic use of the module.  The easiest way to understand the functionality that must be implemented, is to create a simple module. We will create a new module `helloworld` that will log the functions being called.
 In the project directory you should find the `hellomodule.c` and `Makefile` files. Open the `hellomodule.c` file in your editor.  
+
 This simple source file has all the code needed to install and uninstall an LKM in the kernel.  There are two macros listed at the bottom of the source file that setup the jump table for this LKM.  Whenever the module is installed, the kernel will call the routine specified in the `module_init` macro, and the routine specified in the `module_exit` will be called when the module is uninstalled.
 
-### 3.2 Create a Makefile
+#### 3.1.2 Create a Makefile
 
 Now you have to compile your module.  There are a couple of ways to add our module to the list of modules to be built for a kernel.  One is to modify the makefile used by the kernel build.  The other is to write our own local makefile and attach it to the build when you want to make the modules.  Create your own make file,  create named `Makefile` and type the following lines in the file:
 
@@ -270,104 +271,107 @@ Here `m` in `obj-m` means module and you are telling the compiler to create a mo
 make
 ```
 
-
 You will see there is now a file named `hellomodule.ko`. This is the kernel module (.ko) object you will be
 inserting in the basic kernel image.
 
-### 3.3 Install Module
+#### 3.1.3 Install Module
 To insert the module, type the following command:
-
 ```
 sudo insmod hellomodule.ko
 ```
+The kernel has tried to insert your module.  If it is successful, the `module_init()` function will be called and you will see the log message that has been inserted into `/val/logs/system.log`.  If you type `lsmod` you will see your module is now inserted in the kernel.   
 
-The kernel has tried to insert your module.  If it is successful, you will see the log message that has been inserted into `/val/logs/system.log`.  If you type `lsmod` you will see your module is now inserted in the kernel.   
-
-### 3.4 Uninstall Module
+#### 3.1.4 Uninstall Module
 To remove the kernel use the following command:
-
 ```
 sudo rmmod hellomodule
 ```
-
 To verify that the module was uninstalled, check the system log and you should see our module exit message.
 You can also use the `lsmod` command to verify the module is no longer in the system.
 
-### 3.5 Create device file
-The device drivers can be dynamically installed into the kernel.  How does the kernel know which device driver to use with which device?  Each device will have corresponding device file that is located in the `/dev` directory.  If you list the file in that directory you will see all the devices currently known by the kernel.  These are not regular files.  They are virtual files that only supply data from or give data to the device.  
+### 3.2 Create a virtual file for the device
+The device drivers can be dynamically installed into the kernel.  How does the kernel know which device driver to use with which device?  Each device will have corresponding device file that is located in the `/dev` directory.  If you list the files in that directory you will see all the devices currently known by the kernel.  These are not regular files.  They are virtual files that only supply data from or give data to the device.  There is not any physical storage on the disk for these devices.  The device driver code is responsible for creating a mechanism to store all the information.
 
-To add a new device you need to create a new entry in the `/dev` directory.  Using the `mknod` command, you can create a new entry.
+To add a new device you need to create a new entry in the `/dev` directory. Each virtual file has information associated with it to tell the kernel which device driver to use when accessing the device.  Each device driver is given a device `major number` to uniquely identify it.
+
+You can create a new virtual device file to be associated with your device driver.  You need to find an unused major number for your kernel.  Use the `mknod` command to create a new devie entry and associate the new major number for your device driver.
 
 ```
 sudo mknod -m <permission> <location> <type of driver> <major number> <minor number>
 ```
 
-For our example we will create a device called `simple_character_device` with permissions (using standard file permissions [r,w,e]), is a character device (`c`) with major number of `240`. The major number should be unique and you can look at current devices already installed, but usually user modules start at 240.
+For our example we will create a device called `simple_character_device` with permissions (using standard file permissions [r,w,e]), is a character device (`c`) with major number of `240`. The major number should be unique and you can look at current devices already installed, but usually user modules start at 240. *(Hint: the name of the device file can be anything you want.  Shorter names will be easier to type when using the filename later.  Just remember to use the same name everywhere)*
 ```
-        sudo mknod –m 777 /dev/simple_character_device c 240 0
+sudo mknod –m 777 /dev/simple_character_device c 240 0
 ```
 
-### 3.6 Modify device driver to support open, close, read, write, seek
-Using your `hellomodule.c` as template, create a new device driver that will be modified to support the following functions:  open, read, write, seek, close.   You will need to create a buffer to store the data for this device.  It will exist as long as the module is installed.  Once it is uninstalled, all data will be lost.
+### 3.3 Modify device driver
+Using your `hellomodule.c` as template, create a new device driver that will be modified to support the following file opererations:  open, read, write, seek, close.   You will need to create a buffer to store the data for this device.  It will exist as long as the module is installed.  Once it is uninstalled, all data will be lost.
 
-###     -------NEED TO EXPLAIN INTERNAL JUMP TABLE AND FILE STRUCT-------
+#### 3.3.1 Registering the device driver
+Each device virtual file is created with a `major number` associated with it.  This allows the kernel to find the code that has been assigned to the `major number` when an applications tries to perform file operations upon it.
 
-The function cited below is used for registering character devices:
+When the module is loaded, it needs to tell the kernel which device it will be supporting by associating a `major number` with the module.  This is accomplished using the `register_chrdev()` function.
 
+```c
 int register_chrdev (unsigned int   major,
                      const char *   name,
                      const struct   fops);
                      file_operations *
-
-Here, we specify the name and major number of a device to register it, after which the device and the file_operations structure will be linked. If we assign zero to the major parameter, the function will allocate a major device number (i.e. the value it returns) on its own. If the value returned is zero, this signifies success, while a negative number signifies an error. Both device numbers are specified in the 0–255 range.
-
-We pass the device name as a string value of the name parameter (this string can also pass the name of a module if it registers a single device). We then use this string to identify a device in the /sys/devices file. Device file operations such as read, write, and save are processed by the function pointers stored within the file_operations structure. These functions are implemented by the module and the pointers to the module structure identifying this module are also stored within the file_operations structure. Here you can see the 2.6.32 kernel version structure:
-
 ```
+
+Here, we specify the `name` and `major number` of a device to register it, after which the device and the `file_operations` structure will be linked. If we assign zero to the major parameter, the function will allocate a major device number (i.e. the value it returns) on its own. If the value returned is zero, this signifies success, while a negative number signifies an error. Device numbers are specified in the 0–255 range.
+
+We pass the device name as a string value of the `name` parameter (this string can also pass the name of a module if it registers a single device). We can use this string to identify a device in the /sys/devices file.
+
+#### 3.3.2 Providing support for file operations
+
+The final parameter in when registering a device driver is a pointer to a set of operations that can be performed on that device. Whan an application accesses a device file operations such as read, write, and seek, the kernel will call the function that is pointed to within the `file_operations` data structure. These functions are implemented by the module and then pointers to the module's functions are stored within a file_operations structure. Below you can see a version of the structure.
+
+```c
 struct file_operations {
-       struct module *owner;
-       loff_t (*llseek) (struct file *, loff_t, int);
-       ssize_t (*read) (struct file *, char *, size_t, loff_t *);
-       ssize_t (*write) (struct file *, const char *, size_t, loff_t *);
-       int (*readdir) (struct file *, void *, filldir_t);
-       unsigned int (*poll) (struct file *, struct poll_table_struct *);
-       int (*ioctl) (struct inode *, struct file *, unsigned int, unsigned long);
-       int (*mmap) (struct file *, struct vm_area_struct *);
-       int (*open) (struct inode *, struct file *);
-       int (*flush) (struct file *);
-       int (*release) (struct inode *, struct file *);
-       int (*fsync) (struct file *, struct dentry *, int datasync);
-       int (*fasync) (int, struct file *, int);
-       int (*lock) (struct file *, int, struct file_lock *);
-       ssize_t (*readv) (struct file *, const struct iovec *, unsigned long,
-          loff_t *);
-       ssize_t (*writev) (struct file *, const struct iovec *, unsigned long,
-          loff_t *);
-    };
+       struct module * owner;
+       loff_t (*llseek) (struct file * , loff_t, int);
+       ssize_t (*read) (struct file * , char * , size_t, loff_t * );
+       ssize_t (*write) (struct file * , const char * , size_t, loff_t * );
+       int (*readdir) (struct file * , void * , filldir_t);
+       unsigned int (* poll) (struct file * , struct poll_table_struct * );
+       int (*ioctl) (struct inode * , struct file * , unsigned int, unsigned long);
+       int (*mmap) (struct file * , struct vm_area_struct * );
+       int (*open) (struct inode * , struct file * );
+       int (*flush) (struct file * );
+       int (*release) (struct inode * , struct file * );
+       int (*fsync) (struct file * , struct dentry * , int datasync);
+       int (*fasync) (int, struct file * , int);
+       int (*lock) (struct file * , int, struct file_lock * );
+       ssize_t (*readv) (struct file * , const struct iovec * , unsigned long, loff_t * );
+       ssize_t (*writev) (struct file * , const struct iovec * , unsigned long, loff_t * );
+    };    
 ```
 
-### 3.6.1 The file_operations Structure
+### 3.3.3 The `file_operations` structure
 
-If the file_operations structure contains some functions that aren’t required, you can still use the file without implementing them. A pointer to an unimplemented function can simply be set to be zero. After that, the system will take care of the implementation of the function and make it behave normally. In our case, we'll just implement the read function.
+If the `file_operations` structure contains some functions that aren’t required, you can still use the file without implementing them. A pointer to an unimplemented function can simply be set to be zero. After that, the system will take care of the implementation of the function and make it behave normally. In our case, we'll just implement the read function.
 
-As we're going to ensure the operation of only a single type of device with our Linux driver, our file_operations structure will be global and static. Correspondingly, after it's created, we'll need to fill it statically. Here you can see how this is done:
+As we're going to ensure the operation of only a single type of device with our Linux driver, our `file_operations` structure will be global and static. Correspondingly, after it's created, we'll need to fill it statically. Here you can see how this is done:
 
+```c
 static struct file_operations simple_driver_fops =
 {
     .owner   = THIS_MODULE,
     .read    = device_file_read,
 };
+```
 
-The declaration of the THIS_MODULE macro is contained in the linux/module.h header file. We transform the macro into the pointer to the module structure of the required module. A bit later, we'll get to writing the body of the function with a prototype, but right now we have only the pointer to it, which is device_file_read.
+### 3.3.4 Registering the device driver
 
-ssize_t device_file_read (struct file *, char *, size_t, loff_t *);
+The declaration of the `THIS_MODULE` macro is contained in the `linux/module.h` header file. We transform the macro into the pointer to the module structure of the required module. A bit later, we'll get to writing the body of the function with a prototype, but right now we have only the pointer to it, which is `device_file_read`, which we will define below.
 
-The file_operations structure allows us to write several functions that will perform and revoke the registration of the device file.
-
+```c
     static int device_file_major_number = 0;
-static const char device_name[] = "Simple-driver";
-static int register_device(void)
-{
+    static const char device_name[] = "Simple-driver";
+    static int register_device(void)
+    {
         int result = 0;
         printk( KERN_NOTICE "Simple-driver: register_device() is called." );
         result = register_chrdev( 0, device_name, &simple_driver_fops );
@@ -380,17 +384,27 @@ static int register_device(void)
         printk( KERN_NOTICE "Simple-driver: registered character device with major number = %i and minor numbers 0...255"
              , device_file_major_number );
         return 0;
-}
+    }
+```
 
 The device_file_major_number is a global variable that contains the major device number. When the lifetime of the driver expires, this global variable will revoke the registration of the device file.
-###     -------NEED TO EXPLAIN INTERNAL JUMP TABLE AND FILE STRUCT-------
 
-### 3.7 Write test application for testing new device driver
+### 3.3.5 Defining the file operations
+Each device driver function will need to be created for the device.  In this assignment, you will need to support open, close, read, write, seek, and close operations.  The prototype for each call is previously defined in the `file_operations` structure.  You will notice that a pointer to the file information is passed as the first parameter, and that a pointer to an offset is the last parameter.
+```c
+ssize_t device_file_read (struct file *, char *, size_t, loff_t *);
+```
+Each device is being treated as if it were a file on disk.  The file structure pointer allows you to get information about the usage of the file.  Whenever a file is being read or written, the file structure stores  information about where in the stream to perform the next operation.  
+
+The final parameter above provides a location to write the new position for the next operation.  In the case of a read, the read is performed starting at the current stream location and will update the position depending on the number of bytes read from the device.  This new position is stored at the location provided in the last parameter.
+
+
+### 3.4 Write test application for testing new device driver
 Using the basic interactive testing code we have provided, test your code for `open/close`.
 Then test your `write` code.  Then your `read` code.  Now you have a working device that can read and write.  But you also need to be able to seek to a location and perform functions from that location within the data.  You must implement `seek` and also add code to the testing application to call the seek system call.
 
 
-### 3.8 Utilities for Loadable Kernel Modules
+### 3.5 Utilities for Loadable Kernel Modules
 * _insmod_:   Insert an LKM into the kernel.
 * _rmmod_:    Remove an LKM from the kernel.
 * _depmod_:   Determine interdependencies between LKMs.
@@ -400,7 +414,7 @@ Then test your `write` code.  Then your `read` code.  Now you have a working dev
 * _modinfo_:  Display contents of .modinfo section in an LKM object file.
 * _modprobe_: Insert/remove an LKM or set of LKMs intelligently (e.g., if module A must be loaded before loading module B, modprobe will automatically load A when module B is requested to be loaded)
 
-## 3.9 **You MUST Submit Your Work for section 3**
+## 3.6 **You MUST Submit Your Work for section 3**
 After you have completed section 3, please submit your code for the new device driver you have created.  Create a zip file (use filename: `<your last name>_PA1.zio`) with all the files you have modified to create your new device driver.  Submit that zip file as your submission on Moodle for PA1.
 
 ---
