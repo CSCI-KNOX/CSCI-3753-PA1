@@ -349,7 +349,7 @@ struct file_operations {
     };    
 ```
 
-### 3.3.3 The `file_operations` structure
+#### 3.3.3 The `file_operations` structure
 
 If the `file_operations` structure contains some functions that aren’t required, you can still use the file without implementing them. A pointer to an unimplemented function can simply be set to be zero. After that, the system will take care of the implementation of the function and make it behave normally. In our case, we'll just implement the read function.
 
@@ -363,7 +363,7 @@ static struct file_operations simple_driver_fops =
 };
 ```
 
-### 3.3.4 Registering the device driver
+#### 3.3.4 Registering the device driver
 
 The declaration of the `THIS_MODULE` macro is contained in the `linux/module.h` header file. We transform the macro into the pointer to the module structure of the required module. A bit later, we'll get to writing the body of the function with a prototype, but right now we have only the pointer to it, which is `device_file_read`, which we will define below.
 
@@ -389,7 +389,7 @@ The declaration of the `THIS_MODULE` macro is contained in the `linux/module.h` 
 
 The device_file_major_number is a global variable that contains the major device number. When the lifetime of the driver expires, this global variable will revoke the registration of the device file.
 
-### 3.3.5 Defining the file operations
+#### 3.3.5 Defining the file operations
 Each device driver function will need to be created for the device.  In this assignment, you will need to support open, close, read, write, seek, and close operations.  The prototype for each call is previously defined in the `file_operations` structure.  You will notice that a pointer to the file information is passed as the first parameter, and that a pointer to an offset is the last parameter.
 ```c
 ssize_t device_file_read (struct file *, char *, size_t, loff_t *);
